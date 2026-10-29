@@ -1,0 +1,3166 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="课时工作台：个人老师的课时记录与课消统计工具。支持一键排课、周课表、日历热力、预付课时销课、Excel/JSON 导入导出，数据存本地。">
+<meta name="theme-color" content="#14b8a6">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%2314b8a6'/%3E%3Cg stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'%3E%3Cpath d='M8 2v4M16 2v4M3 10h18M9 16l2 2 4-4'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%2314b8a6'/%3E%3Cg stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'%3E%3Cpath d='M8 2v4M16 2v4M3 10h18M9 16l2 2 4-4'/%3E%3C/g%3E%3C/svg%3E">
+<!-- 上线部署后请将 og:image 替换为线上绝对地址（微信分享需可公开访问的图片 URL） -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="课时工作台">
+<meta property="og:description" content="课时记录 · 课消统计 · 课表管理，一个页面搞定">
+<meta name="twitter:card" content="summary">
+<title>课时工作台</title>
+<style>
+  html, body { height: 100%; }
+  body { background: #f8fafc; }
+  .hide-scroll::-webkit-scrollbar { width: 0; height: 0; }
+
+  /* ===== 品牌色（不依赖 Tailwind 运行时配置） ===== */
+  .bg-brand-50   { background-color: #f0fdfa; }
+  .bg-brand-100  { background-color: #ccfbf1; }
+  .bg-brand-200  { background-color: #99f6e4; }
+  .bg-brand-500  { background-color: #14b8a6; }
+  .bg-brand-600  { background-color: #0d9488; }
+  .bg-brand-700  { background-color: #0f766e; }
+  .bg-brand-50\/40 { background-color: rgba(240,253,250,.4); }
+  .hover\:bg-brand-100:hover { background-color: #ccfbf1; }
+  .hover\:bg-brand-200:hover { background-color: #99f6e4; }
+  .hover\:bg-brand-600:hover { background-color: #0d9488; }
+  .active\:bg-brand-700:active { background-color: #0f766e; }
+  .text-brand-500 { color: #14b8a6; }
+  .text-brand-600 { color: #0d9488; }
+  .text-brand-700 { color: #0f766e; }
+  .text-brand-800 { color: #115e59; }
+  .hover\:text-brand-700:hover { color: #0f766e; }
+  .border-brand-200 { border-color: #99f6e4; }
+  .border-brand-500 { border-color: #14b8a6; }
+  .focus\:border-brand-500:focus { border-color: #14b8a6; }
+  .focus\:ring-brand-100:focus { box-shadow: 0 0 0 3px rgba(204,251,241,.75) !important; }
+  .ring-brand-500 { box-shadow: 0 0 0 2px #14b8a6 !important; }
+
+  /* 日历热力：3 档 —— 无课 / 1-3 节 / 4 节及以上 */
+  .heat-0 { background: #ffffff; }
+  .heat-1 { background: #99f6e4; color: #0f766e; }
+  .heat-2 { background: #0d9488; color: #ffffff; }
+  .fade-in { animation: fadeIn .2s ease; }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(4px);} to {opacity:1; transform:none;} }
+  .modal-enter { animation: modalIn .18s ease; }
+  @keyframes modalIn { from {opacity:0; transform:scale(.96);} to{opacity:1; transform:none;} }
+  .day-cell:hover { box-shadow: inset 0 0 0 2px rgba(20,184,166,.45); }
+</style>
+<style>
+*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0}.inset-x-0{left:0;right:0}.bottom-0{bottom:0}.bottom-6{bottom:1.5rem}.left-0{left:0}.left-0\.5{left:.125rem}.left-1{left:.25rem}.left-1\/2{left:50%}.left-3{left:.75rem}.right-0{right:0}.right-0\.5{right:.125rem}.right-1{right:.25rem}.right-3{right:.75rem}.top-0{top:0}.top-1{top:.25rem}.top-1\/2{top:50%}.top-4{top:1rem}.top-\[68px\]{top:68px}.z-10{z-index:10}.z-20{z-index:20}.z-30{z-index:30}.z-40{z-index:40}.z-50{z-index:50}.z-\[100\]{z-index:100}.z-\[200\]{z-index:200}.mx-auto{margin-left:auto;margin-right:auto}.my-1{margin-top:.25rem}.mb-1,.my-1{margin-bottom:.25rem}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.ml-1{margin-left:.25rem}.ml-2{margin-left:.5rem}.ml-auto{margin-left:auto}.mt-0{margin-top:0}.mt-0\.5{margin-top:.125rem}.mt-1{margin-top:.25rem}.mt-1\.5{margin-top:.375rem}.mt-2{margin-top:.5rem}.mt-2\.5{margin-top:.625rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}.line-clamp-2{overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}.block{display:block}.inline-block{display:inline-block}.inline{display:inline}.flex{display:flex}.table{display:table}.grid{display:grid}.hidden{display:none}.aspect-square{aspect-ratio:1/1}.h-1{height:.25rem}.h-1\.5{height:.375rem}.h-10{height:2.5rem}.h-14{height:3.5rem}.h-16{height:4rem}.h-2{height:.5rem}.h-3{height:.75rem}.h-3\.5{height:.875rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-7{height:1.75rem}.h-8{height:2rem}.h-9{height:2.25rem}.h-full{height:100%}.h-screen{height:100vh}.max-h-48{max-height:12rem}.max-h-\[80vh\]{max-height:80vh}.max-h-\[85vh\]{max-height:85vh}.max-h-\[90vh\]{max-height:90vh}.w-10{width:2.5rem}.w-14{width:3.5rem}.w-2{width:.5rem}.w-20{width:5rem}.w-28{width:7rem}.w-3{width:.75rem}.w-3\.5{width:.875rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-52{width:13rem}.w-60{width:15rem}.w-7{width:1.75rem}.w-8{width:2rem}.w-9{width:2.25rem}.w-\[92px\]{width:92px}.w-full{width:100%}.min-w-0{min-width:0}.min-w-\[600px\]{min-width:600px}.max-w-6xl{max-width:72rem}.max-w-md{max-width:28rem}.max-w-xs{max-width:20rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.-translate-x-1{--tw-translate-x:-0.25rem}.-translate-x-1,.-translate-x-1\/2{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.-translate-x-1\/2{--tw-translate-x:-50%}.-translate-y-1{--tw-translate-y:-0.25rem}.-translate-y-1,.-translate-y-1\/2{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.-translate-y-1\/2{--tw-translate-y:-50%}.transform{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.cursor-pointer{cursor:pointer}.select-none{-webkit-user-select:none;-moz-user-select:none;user-select:none}.resize-none{resize:none}.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-cols-7{grid-template-columns:repeat(7,minmax(0,1fr))}.grid-cols-\[1fr_1fr_auto\]{grid-template-columns:1fr 1fr auto}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-end{align-items:flex-end}.items-center{align-items:center}.items-baseline{align-items:baseline}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-0{gap:0}.gap-0\.5{gap:.125rem}.gap-1{gap:.25rem}.gap-1\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-2\.5{gap:.625rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-5{gap:1.25rem}.gap-x-4{-moz-column-gap:1rem;column-gap:1rem}.gap-y-1{row-gap:.25rem}.gap-y-1\.5{row-gap:.375rem}.space-y-1>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.25rem*var(--tw-space-y-reverse))}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.space-y-3>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.75rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.75rem*var(--tw-space-y-reverse))}.space-y-4>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem*var(--tw-space-y-reverse))}.space-y-5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem*var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.truncate{overflow:hidden;text-overflow:ellipsis}.truncate,.whitespace-nowrap{white-space:nowrap}.rounded{border-radius:.25rem}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:.5rem}.rounded-md{border-radius:.375rem}.rounded-xl{border-radius:.75rem}.rounded-t-2xl{border-top-left-radius:1rem;border-top-right-radius:1rem}.border{border-width:1px}.border-y{border-top-width:1px}.border-b,.border-y{border-bottom-width:1px}.border-l-2{border-left-width:2px}.border-r{border-right-width:1px}.border-t{border-top-width:1px}.border-dashed{border-style:dashed}.border-amber-200{--tw-border-opacity:1;border-color:rgb(253 230 138/var(--tw-border-opacity,1))}.border-amber-300{--tw-border-opacity:1;border-color:rgb(252 211 77/var(--tw-border-opacity,1))}.border-rose-200{--tw-border-opacity:1;border-color:rgb(254 205 211/var(--tw-border-opacity,1))}.border-rose-500{--tw-border-opacity:1;border-color:rgb(244 63 94/var(--tw-border-opacity,1))}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249/var(--tw-border-opacity,1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240/var(--tw-border-opacity,1))}.border-slate-300{--tw-border-opacity:1;border-color:rgb(203 213 225/var(--tw-border-opacity,1))}.border-transparent{border-color:transparent}.bg-amber-100{--tw-bg-opacity:1;background-color:rgb(254 243 199/var(--tw-bg-opacity,1))}.bg-amber-50{--tw-bg-opacity:1;background-color:rgb(255 251 235/var(--tw-bg-opacity,1))}.bg-black{--tw-bg-opacity:1;background-color:rgb(0 0 0/var(--tw-bg-opacity,1))}.bg-black\/30{background-color:rgba(0,0,0,.3)}.bg-black\/40{background-color:rgba(0,0,0,.4)}.bg-emerald-600{--tw-bg-opacity:1;background-color:rgb(5 150 105/var(--tw-bg-opacity,1))}.bg-rose-50{--tw-bg-opacity:1;background-color:rgb(255 241 242/var(--tw-bg-opacity,1))}.bg-rose-500{--tw-bg-opacity:1;background-color:rgb(244 63 94/var(--tw-bg-opacity,1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249/var(--tw-bg-opacity,1))}.bg-slate-100\/80{background-color:rgba(241,245,249,.8)}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252/var(--tw-bg-opacity,1))}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42/var(--tw-bg-opacity,1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.bg-white\/25{background-color:hsla(0,0%,100%,.25)}.p-0{padding:0}.p-1{padding:.25rem}.p-1\.5{padding:.375rem}.p-10{padding:2.5rem}.p-2{padding:.5rem}.p-3{padding:.75rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.p-8{padding:2rem}.px-1{padding-left:.25rem;padding-right:.25rem}.px-1\.5{padding-left:.375rem;padding-right:.375rem}.px-2{padding-left:.5rem;padding-right:.5rem}.px-2\.5{padding-left:.625rem;padding-right:.625rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.px-8{padding-left:2rem;padding-right:2rem}.py-0{padding-top:0;padding-bottom:0}.py-0\.5{padding-top:.125rem;padding-bottom:.125rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-1\.5{padding-top:.375rem;padding-bottom:.375rem}.py-10{padding-top:2.5rem;padding-bottom:2.5rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-2\.5{padding-top:.625rem;padding-bottom:.625rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-5{padding-top:1.25rem;padding-bottom:1.25rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.pb-5{padding-bottom:1.25rem}.pb-\[64px\]{padding-bottom:64px}.pl-10{padding-left:2.5rem}.pl-9{padding-left:2.25rem}.pr-3{padding-right:.75rem}.pt-0{padding-top:0}.pt-0\.5{padding-top:.125rem}.pt-1{padding-top:.25rem}.pt-2{padding-top:.5rem}.pt-3{padding-top:.75rem}.pt-5{padding-top:1.25rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-\[13px\]{font-size:13px}.text-\[8px\]{font-size:8px}.text-\[9px\]{font-size:9px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-normal{font-weight:400}.font-semibold{font-weight:600}.tabular-nums{--tw-numeric-spacing:tabular-nums;font-variant-numeric:var(--tw-ordinal) var(--tw-slashed-zero) var(--tw-numeric-figure) var(--tw-numeric-spacing) var(--tw-numeric-fraction)}.leading-none{line-height:1}.leading-relaxed{line-height:1.625}.leading-tight{line-height:1.25}.tracking-\[0\.6em\]{letter-spacing:.6em}.text-amber-500{--tw-text-opacity:1;color:rgb(245 158 11/var(--tw-text-opacity,1))}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6/var(--tw-text-opacity,1))}.text-amber-700{--tw-text-opacity:1;color:rgb(180 83 9/var(--tw-text-opacity,1))}.text-amber-800{--tw-text-opacity:1;color:rgb(146 64 14/var(--tw-text-opacity,1))}.text-emerald-600{--tw-text-opacity:1;color:rgb(5 150 105/var(--tw-text-opacity,1))}.text-emerald-700{--tw-text-opacity:1;color:rgb(4 120 87/var(--tw-text-opacity,1))}.text-rose-500{--tw-text-opacity:1;color:rgb(244 63 94/var(--tw-text-opacity,1))}.text-rose-600{--tw-text-opacity:1;color:rgb(225 29 72/var(--tw-text-opacity,1))}.text-rose-700{--tw-text-opacity:1;color:rgb(190 18 60/var(--tw-text-opacity,1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225/var(--tw-text-opacity,1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184/var(--tw-text-opacity,1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139/var(--tw-text-opacity,1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105/var(--tw-text-opacity,1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85/var(--tw-text-opacity,1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59/var(--tw-text-opacity,1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42/var(--tw-text-opacity,1))}.text-transparent{color:transparent}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.text-white\/95{color:hsla(0,0%,100%,.95)}.underline{text-decoration-line:underline}.accent-\[\#14b8a6\]{accent-color:#14b8a6}.opacity-0{opacity:0}.opacity-40{opacity:.4}.opacity-50{opacity:.5}.opacity-70{opacity:.7}.opacity-90{opacity:.9}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgba(0,0,0,.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color)}.shadow-2xl,.shadow-lg{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color),0 4px 6px -4px var(--tw-shadow-color)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgba(0,0,0,.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color)}.shadow-sm,.shadow-xl{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color),0 8px 10px -6px var(--tw-shadow-color)}.outline-none{outline:2px solid transparent;outline-offset:2px}.ring-2{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.ring-rose-300{--tw-ring-opacity:1;--tw-ring-color:rgb(253 164 175/var(--tw-ring-opacity,1))}.ring-slate-200{--tw-ring-opacity:1;--tw-ring-color:rgb(226 232 240/var(--tw-ring-opacity,1))}.ring-slate-300{--tw-ring-opacity:1;--tw-ring-color:rgb(203 213 225/var(--tw-ring-opacity,1))}.ring-offset-1{--tw-ring-offset-width:1px}.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.ease-in{transition-timing-function:cubic-bezier(.4,0,1,1)}.hover\:scale-\[1\.08\]:hover{--tw-scale-x:1.08;--tw-scale-y:1.08;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:border-rose-400:hover{--tw-border-opacity:1;border-color:rgb(251 113 133/var(--tw-border-opacity,1))}.hover\:bg-amber-100:hover{--tw-bg-opacity:1;background-color:rgb(254 243 199/var(--tw-bg-opacity,1))}.hover\:bg-amber-50:hover{--tw-bg-opacity:1;background-color:rgb(255 251 235/var(--tw-bg-opacity,1))}.hover\:bg-emerald-700:hover{--tw-bg-opacity:1;background-color:rgb(4 120 87/var(--tw-bg-opacity,1))}.hover\:bg-rose-100:hover{--tw-bg-opacity:1;background-color:rgb(255 228 230/var(--tw-bg-opacity,1))}.hover\:bg-rose-50:hover{--tw-bg-opacity:1;background-color:rgb(255 241 242/var(--tw-bg-opacity,1))}.hover\:bg-rose-600:hover{--tw-bg-opacity:1;background-color:rgb(225 29 72/var(--tw-bg-opacity,1))}.hover\:bg-slate-100:hover{--tw-bg-opacity:1;background-color:rgb(241 245 249/var(--tw-bg-opacity,1))}.hover\:bg-slate-200:hover{--tw-bg-opacity:1;background-color:rgb(226 232 240/var(--tw-bg-opacity,1))}.hover\:bg-slate-50:hover{--tw-bg-opacity:1;background-color:rgb(248 250 252/var(--tw-bg-opacity,1))}.hover\:text-emerald-800:hover{--tw-text-opacity:1;color:rgb(6 95 70/var(--tw-text-opacity,1))}.hover\:text-rose-700:hover{--tw-text-opacity:1;color:rgb(190 18 60/var(--tw-text-opacity,1))}.hover\:shadow-sm:hover{--tw-shadow:0 1px 2px 0 rgba(0,0,0,.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.hover\:brightness-110:hover{--tw-brightness:brightness(1.1);filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.peer:checked~.peer-checked\:border-rose-400{--tw-border-opacity:1;border-color:rgb(251 113 133/var(--tw-border-opacity,1))}.peer:checked~.peer-checked\:bg-rose-50{--tw-bg-opacity:1;background-color:rgb(255 241 242/var(--tw-bg-opacity,1))}.peer:checked~.peer-checked\:text-rose-600{--tw-text-opacity:1;color:rgb(225 29 72/var(--tw-text-opacity,1))}@media (min-width:640px){.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (min-width:768px){.md\:left-1{left:.25rem}.md\:right-1{right:.25rem}.md\:ml-auto{margin-left:auto}.md\:flex{display:flex}.md\:hidden{display:none}.md\:h-20{height:5rem}.md\:w-12{width:3rem}.md\:w-28{width:7rem}.md\:w-52{width:13rem}.md\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.md\:flex-col{flex-direction:column}.md\:items-center{align-items:center}.md\:gap-1\.5{gap:.375rem}.md\:gap-2{gap:.5rem}.md\:gap-4{gap:1rem}.md\:gap-6{gap:1.5rem}.md\:space-y-5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem*var(--tw-space-y-reverse))}.md\:rounded-2xl{border-radius:1rem}.md\:p-2{padding:.5rem}.md\:p-4{padding:1rem}.md\:p-5{padding:1.25rem}.md\:p-6{padding:1.5rem}.md\:p-8{padding:2rem}.md\:px-1\.5{padding-left:.375rem;padding-right:.375rem}.md\:pb-0{padding-bottom:0}.md\:text-3xl{font-size:1.875rem;line-height:2.25rem}.md\:text-\[10px\]{font-size:10px}.md\:text-\[11px\]{font-size:11px}.md\:text-\[9px\]{font-size:9px}.md\:text-lg{font-size:1.125rem;line-height:1.75rem}.md\:text-sm{font-size:.875rem;line-height:1.25rem}.md\:text-xl{font-size:1.25rem;line-height:1.75rem}.md\:text-xs{font-size:.75rem;line-height:1rem}}@media (min-width:1280px){.xl\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style>
+<script>
+var ICONS={"calendar-check":"<path d=\"M8 2v4\"/><path d=\"M16 2v4\"/><rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\"/><path d=\"M3 10h18\"/><path d=\"m9 16 2 2 4-4\"/>","users":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/>","plus":"<path d=\"M5 12h14\"/><path d=\"M12 5v14\"/>","user-plus":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><line x1=\"19\" x2=\"19\" y1=\"8\" y2=\"14\"/><line x1=\"22\" x2=\"16\" y1=\"11\" y2=\"11\"/>","list-ordered":"<path d=\"M10 12h11\"/><path d=\"M10 18h11\"/><path d=\"M10 6h11\"/><path d=\"M4 10h2\"/><path d=\"M4 6h1v4\"/><path d=\"M6 18H4c0-1 2-2 2-3s-1-1.5-2-1\"/>","x":"<path d=\"M18 6 6 18\"/><path d=\"m6 6 12 12\"/>","user":"<path d=\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\"/><circle cx=\"12\" cy=\"7\" r=\"4\"/>","calculator":"<rect width=\"16\" height=\"20\" x=\"4\" y=\"2\" rx=\"2\"/><line x1=\"8\" x2=\"16\" y1=\"6\" y2=\"6\"/><line x1=\"16\" x2=\"16\" y1=\"14\" y2=\"18\"/><path d=\"M16 10h.01\"/><path d=\"M12 10h.01\"/><path d=\"M8 10h.01\"/><path d=\"M12 14h.01\"/><path d=\"M8 14h.01\"/><path d=\"M12 18h.01\"/><path d=\"M8 18h.01\"/>","download":"<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/><polyline points=\"7 10 12 15 17 10\"/><line x1=\"12\" x2=\"12\" y1=\"15\" y2=\"3\"/>","upload":"<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/><polyline points=\"17 8 12 3 7 8\"/><line x1=\"12\" x2=\"12\" y1=\"3\" y2=\"15\"/>","chevron-down":"<path d=\"m6 9 6 6 6-6\"/>","chevron-up":"<path d=\"m18 15-6-6-6 6\"/>","wallet":"<path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\"/><path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\"/>","clock":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><polyline points=\"12 6 12 12 16 14\"/>","coffee":"<path d=\"M10 2v2\"/><path d=\"M14 2v2\"/><path d=\"M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1\"/><path d=\"M6 2v2\"/>","chevron-left":"<path d=\"m15 18-6-6 6-6\"/>","chevron-right":"<path d=\"m9 18 6-6-6-6\"/>","check":"<path d=\"M20 6 9 17l-5-5\"/>","pencil":"<path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\"/><path d=\"m15 5 4 4\"/>","trash-2":"<path d=\"M3 6h18\"/><path d=\"M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6\"/><path d=\"M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2\"/><line x1=\"10\" x2=\"10\" y1=\"11\" y2=\"17\"/><line x1=\"14\" x2=\"14\" y1=\"11\" y2=\"17\"/>","search":"<circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/>","file-spreadsheet":"<path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"/><path d=\"M14 2v4a2 2 0 0 0 2 2h4\"/><path d=\"M8 13h2\"/><path d=\"M14 13h2\"/><path d=\"M8 17h2\"/><path d=\"M14 17h2\"/>","check-square":"<path d=\"M21 10.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12.5\"/><path d=\"m9 11 3 3L22 4\"/>","file-text":"<path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"/><path d=\"M14 2v4a2 2 0 0 0 2 2h4\"/><path d=\"M10 9H8\"/><path d=\"M16 13H8\"/><path d=\"M16 17H8\"/>","check-circle":"<path d=\"M21.801 10A10 10 0 1 1 17 3.335\"/><path d=\"m9 11 3 3L22 4\"/>","sun":"<circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2\"/><path d=\"M12 20v2\"/><path d=\"m4.93 4.93 1.41 1.41\"/><path d=\"m17.66 17.66 1.41 1.41\"/><path d=\"M2 12h2\"/><path d=\"M20 12h2\"/><path d=\"m6.34 17.66-1.41 1.41\"/><path d=\"m19.07 4.93-1.41 1.41\"/>","trending-up":"<polyline points=\"22 7 13.5 15.5 8.5 10.5 2 17\"/><polyline points=\"16 7 22 7 22 13\"/>","phone":"<path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z\"/>","calendar-plus":"<path d=\"M8 2v4\"/><path d=\"M16 2v4\"/><path d=\"M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8\"/><path d=\"M3 10h18\"/><path d=\"M16 19h6\"/><path d=\"M19 16v6\"/>","more-vertical":"<circle cx=\"12\" cy=\"12\" r=\"1\"/><circle cx=\"12\" cy=\"5\" r=\"1\"/><circle cx=\"12\" cy=\"19\" r=\"1\"/>","lock":"<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\"/><path d=\"M7 11V7a5 5 0 0 1 10 0v4\"/>","bell":"<path d=\"M10.268 21a2 2 0 0 0 3.464 0\"/><path d=\"M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326\"/>","alert-triangle":"<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/>","rotate-ccw":"<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\"/><path d=\"M3 3v5h5\"/>","file-warning":"<path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/>","eraser":"<path d=\"m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21\"/><path d=\"M22 21H7\"/><path d=\"m5 11 9 9\"/>","settings":"<path d=\"M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/>"};
+function renderIconSvg(name,cls){var d=ICONS[name];if(!d)return "";return '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="'+(cls||"")+'" aria-hidden="true">'+d+'</svg>';}
+function createIcons(root){var scope=root||document;var els=scope.querySelectorAll("[data-lucide]:not(svg)");for(var i=0;i<els.length;i++){var el=els[i];var name=el.getAttribute("data-lucide");var cls=el.getAttribute("class")||"";var html=renderIconSvg(name,cls);if(html){var tpl=document.createElement("template");tpl.innerHTML=html;var svg=tpl.content.firstChild;if(svg){el.parentNode.replaceChild(svg,el);}}}}
+window.lucide={createIcons:createIcons,icons:ICONS};
+</script>
+<style>
+/* ===== 适配与增强（内联，不依赖任何外部请求） ===== */
+html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+#app{height:100vh;height:100dvh;}
+#bottomNav{padding-bottom:env(safe-area-inset-bottom);}
+.tap{min-height:34px;display:inline-flex;align-items:center;justify-content:center;}
+.tap.hidden{display:none;}  /* 修复：.tap 的 display 会覆盖 Tailwind 的 .hidden，此处提高特异性 */
+/* 品牌色 peer-checked / 边框 / 焦点环变体（Tailwind 默认主题无 brand 色，需手写） */
+.peer:checked~.peer-checked\:border-brand-500{border-color:#14b8a6;}
+.peer:checked~.peer-checked\:bg-brand-50{background-color:#f0fdfa;}
+.peer:checked~.peer-checked\:text-brand-700{color:#0f766e;}
+.border-brand-300{border-color:#5eead4;}
+.focus\:ring-brand-500:focus{box-shadow:0 0 0 3px rgba(20,184,166,.35);outline:none;}
+@media print{
+  aside,#bottomNav,header,#mobileMenu,.no-print{display:none!important;}
+  html,body{background:#fff!important;height:auto!important;overflow:visible!important;}
+  #app{display:block!important;height:auto!important;overflow:visible!important;}
+  main{overflow:visible!important;padding-bottom:0!important;}
+  #pageContent{overflow:visible!important;height:auto!important;padding:0!important;}
+  .shadow-sm,.shadow-xl,.shadow-2xl{box-shadow:none!important;}
+}
+</style>
+<script src="https://static.cloudbase.net/cloudbase-js-sdk/latest/cloudbase.full.js"></script>
+</head>
+<body class="text-slate-800">
+<noscript><div style="padding:24px;font-family:sans-serif;color:#334155">课时工作台需要启用 JavaScript 才能使用，请在浏览器设置中开启后刷新页面。</div></noscript>
+
+<!-- 云端同步引导横幅（未配置时显示） -->
+<div id="cloudBanner" class="hidden bg-brand-50 border-b border-brand-200 px-4 py-2 text-sm text-brand-800 flex items-center gap-2">
+  <i data-lucide="upload" class="w-4 h-4 shrink-0"></i>
+  <span class="flex-1">开启云端同步：换设备 / 换浏览器也能看到同一份数据</span>
+  <button onclick="openSettings()" class="text-xs px-2.5 py-1 rounded-md bg-white border border-brand-300 text-brand-700 hover:bg-brand-100 transition tap shrink-0">去配置</button>
+</div>
+
+<!-- ========== 云端登录模态框 ========== -->
+<div id="authModal" class="fixed inset-0 bg-black/40 z-[60] hidden items-center justify-center p-4" onclick="if(event.target===event.currentTarget)closeAuthModal()">
+  <div class="modal-enter bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" onclick="event.stopPropagation()">
+    <h3 id="authTitle" class="text-lg font-semibold text-slate-900 mb-1">登录云端</h3>
+    <p id="authSub" class="text-xs text-slate-500 mb-4 leading-relaxed">登录后数据随身走：换设备、换浏览器，用同一账号即可看到同一份数据</p>
+    <div class="space-y-3">
+      <input id="authUser" type="text" autocomplete="username" placeholder="用户名（2 个字符以上）" class="w-full px-3 py-2.5 bg-slate-50 rounded-lg text-sm border border-slate-200 outline-none focus:border-brand-500">
+      <input id="authPass" type="password" autocomplete="current-password" placeholder="密码（至少 6 位）" class="w-full px-3 py-2.5 bg-slate-50 rounded-lg text-sm border border-slate-200 outline-none focus:border-brand-500">
+      <input id="authPass2" type="password" autocomplete="new-password" placeholder="确认密码" class="w-full px-3 py-2.5 bg-slate-50 rounded-lg text-sm border border-slate-200 outline-none focus:border-brand-500 hidden">
+      <div id="authErr" class="text-xs text-rose-500 hidden"></div>
+      <button id="authSubmit" onclick="submitCloudAuth()" class="w-full py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition">登录</button>
+      <button id="authToggle" onclick="toggleAuthMode()" class="w-full py-2 rounded-xl border border-slate-200 text-slate-600 text-sm hover:bg-slate-50 transition">没有账号？注册一个</button>
+      <button onclick="closeAuthModal()" class="w-full py-1.5 text-slate-400 text-xs hover:text-slate-600 transition">暂不登录，先用本地模式</button>
+    </div>
+  </div>
+</div>
+
+<div id="app" class="flex h-screen overflow-hidden">
+
+  <!-- ========== 桌面端侧边栏 ========== -->
+  <aside class="hidden md:flex md:flex-col w-60 bg-white border-r border-slate-200 shrink-0">
+    <div class="px-5 py-6 border-b border-slate-100">
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-xl bg-brand-500 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="calendar-check" aria-hidden="true" class="lucide lucide-calendar-check w-5 h-5 text-white"><path d="M8 2v3"></path><path d="M16 2v3"></path><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M3 9h18"></path><path d="m9 15 2 2 4-4"></path></svg>
+        </div>
+        <div>
+          <div class="font-semibold text-slate-900">课时工作台</div>
+          <div class="text-xs text-slate-500">Lesson Workbench</div>
+        </div>
+      </div>
+    </div>
+    <nav id="sidebarNav" class="flex-1 py-4 px-3 space-y-1">
+    <button onclick="switchTab('dashboard')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm border-l-2 transition text-slate-500 hover:bg-slate-100 border-transparent">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="layout-dashboard" aria-hidden="true" class="lucide lucide-layout-dashboard w-4 h-4"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg><span>仪表盘</span>
+    </button>
+  
+    <button onclick="switchTab('list')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm border-l-2 transition text-slate-500 hover:bg-slate-100 border-transparent">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="list-ordered" aria-hidden="true" class="lucide lucide-list-ordered w-4 h-4"><path d="M11 5h10"></path><path d="M11 12h10"></path><path d="M11 19h10"></path><path d="M4 4h1v5"></path><path d="M4 9h2"></path><path d="M6.5 20H3.4c0-1 2.6-1.925 2.6-3.5a1.5 1.5 0 0 0-2.6-1.02"></path></svg><span>课程列表</span>
+    </button>
+  
+    <button onclick="switchTab('students')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm border-l-2 transition bg-brand-50 text-brand-700 border-brand-200">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="users" aria-hidden="true" class="lucide lucide-users w-4 h-4"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.128a4 4 0 0 1 0 7.744"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg><span>学生</span>
+    </button>
+  </nav>
+    <div class="p-3 border-t border-slate-100 space-y-1">
+      <button onclick="exportExcel()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 transition text-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-spreadsheet" aria-hidden="true" class="lucide lucide-file-spreadsheet w-4 h-4"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="M8 13h2"></path><path d="M14 13h2"></path><path d="M8 17h2"></path><path d="M14 17h2"></path></svg><span>导出 Excel</span>
+      </button>
+      <button onclick="openSettings()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 transition text-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="settings" aria-hidden="true" class="lucide lucide-settings w-4 h-4"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg><span>设置与数据</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ========== 主内容区 ========== -->
+  <main class="flex-1 flex flex-col overflow-hidden min-w-0 pb-[64px] md:pb-0">
+
+    <!-- 移动端顶栏 -->
+    <header class="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 shrink-0">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="calendar-check" aria-hidden="true" class="lucide lucide-calendar-check w-4 h-4 text-white"><path d="M8 2v3"></path><path d="M16 2v3"></path><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M3 9h18"></path><path d="m9 15 2 2 4-4"></path></svg>
+        </div>
+        <span class="font-semibold text-slate-900">课时工作台</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="toggleMobileMenu()" aria-label="更多功能" class="w-9 h-9 rounded-lg border border-slate-200 text-slate-600 flex items-center justify-center active:scale-95 transition">
+          <i data-lucide="more-vertical" class="w-5 h-5"></i>
+        </button>
+        <button onclick="openLessonModal()" class="w-9 h-9 rounded-lg bg-brand-500 text-white flex items-center justify-center active:scale-95 transition">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="plus" aria-hidden="true" class="lucide lucide-plus w-5 h-5"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- 移动端更多菜单（导出/备份/导入/设置/清空） -->
+    <div id="mobileMenu" class="md:hidden fixed inset-0 z-40 hidden">
+      <div class="absolute inset-0 bg-black/30" onclick="closeMobileMenu()"></div>
+      <div class="absolute right-3 top-[68px] w-52 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 text-sm modal-enter">
+        <button onclick="closeMobileMenu();exportExcel()" class="w-full flex items-center gap-2.5 px-4 py-2.5 text-left text-slate-700 hover:bg-slate-50 transition tap">
+          <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-600"></i>导出 Excel
+        </button>
+        <button onclick="closeMobileMenu();exportData()" class="w-full flex items-center gap-2.5 px-4 py-2.5 text-left text-slate-700 hover:bg-slate-50 transition tap">
+          <i data-lucide="download" class="w-4 h-4 text-brand-600"></i>导出 JSON 备份
+        </button>
+        <label class="w-full flex items-center gap-2.5 px-4 py-2.5 text-slate-700 hover:bg-slate-50 transition cursor-pointer tap">
+          <i data-lucide="upload" class="w-4 h-4 text-slate-500"></i>导入 JSON
+          <input type="file" accept=".json" onchange="closeMobileMenu();importData(event)" class="hidden">
+        </label>
+        <div class="my-1 border-t border-slate-100"></div>
+        <button onclick="closeMobileMenu();openSettings()" class="w-full flex items-center gap-2.5 px-4 py-2.5 text-left text-slate-700 hover:bg-slate-50 transition tap">
+          <i data-lucide="settings" class="w-4 h-4 text-slate-500"></i>设置与数据
+        </button>
+        <button onclick="closeMobileMenu();clearAllData()" class="w-full flex items-center gap-2.5 px-4 py-2.5 text-left text-rose-600 hover:bg-rose-50 transition tap">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>清空全部数据
+        </button>
+      </div>
+    </div>
+
+    <!-- 桌面端顶栏 -->
+    <header class="hidden md:flex items-center justify-between px-8 py-5 border-b border-slate-200 bg-white shrink-0">
+      <div>
+        <h1 id="pageTitle" class="text-xl font-semibold text-slate-900">学生</h1>
+        <p id="pageSub" class="text-sm text-slate-500 mt-0.5">共 17 位学生</p>
+      </div>
+      <button onclick="openLessonModal()" class="flex items-center gap-2 px-4 py-2.5 bg-brand-500 hover:bg-brand-600 active:bg-brand-700 text-white rounded-xl text-sm font-medium shadow-sm transition">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="plus" aria-hidden="true" class="lucide lucide-plus w-4 h-4"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>添加课程
+      </button>
+    </header>
+
+    <!-- 内容容器 -->
+    <div id="pageContent" class="flex-1 overflow-y-auto hide-scroll p-4 md:p-8">
+      <div class="p-8 text-center text-slate-400 text-sm">加载中…</div>
+    </div>
+  </main>
+
+  <!-- ========== 移动端底部 Tab 栏 ========== -->
+  <nav id="bottomNav" class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 grid grid-cols-3 z-30">
+      <button onclick="switchTab('dashboard')" class="flex flex-col items-center justify-center py-2.5 gap-0.5 text-slate-400">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="layout-dashboard" aria-hidden="true" class="lucide lucide-layout-dashboard w-5 h-5"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg>
+        <span class="text-[10px]">仪表盘</span>
+      </button>
+      <button onclick="switchTab('list')" class="flex flex-col items-center justify-center py-2.5 gap-0.5 text-slate-400">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="list-ordered" aria-hidden="true" class="lucide lucide-list-ordered w-5 h-5"><path d="M11 5h10"></path><path d="M11 12h10"></path><path d="M11 19h10"></path><path d="M4 4h1v5"></path><path d="M4 9h2"></path><path d="M6.5 20H3.4c0-1 2.6-1.925 2.6-3.5a1.5 1.5 0 0 0-2.6-1.02"></path></svg>
+        <span class="text-[10px]">课程列表</span>
+      </button>
+      <button onclick="switchTab('students')" class="flex flex-col items-center justify-center py-2.5 gap-0.5 text-brand-600">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="users" aria-hidden="true" class="lucide lucide-users w-5 h-5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.128a4 4 0 0 1 0 7.744"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg>
+        <span class="text-[10px]">学生</span>
+      </button></nav>
+</div>
+
+<!-- ========== 添加/编辑课程模态框 ========== -->
+<div id="lessonModal" class="fixed inset-0 bg-black/40 z-50 hidden items-center justify-center p-4" onclick="closeModalBack(event,'lessonModal')">
+  <div class="modal-enter bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto hide-scroll" onclick="event.stopPropagation()">
+    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
+      <h3 id="lessonModalTitle" class="text-lg font-semibold text-slate-900">添加课程</h3>
+      <button onclick="closeLessonModal()" class="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-500">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x w-5 h-5"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+      </button>
+    </div>
+    <form id="lessonForm" class="px-6 py-5 space-y-4" onsubmit="saveLesson(event)">
+      <input type="hidden" name="id">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-xs text-slate-500 mb-1 block">日期</label>
+          <input type="date" name="date" required="" class="w-full px-3 py-2.5 bg-slate-50 rounded-lg text-sm border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition">
+        </div>
+        <div>
+          <label class="text-xs text-slate-500 mb-1 block">开始时间</label>
+          <input type="time" name="time" required="" class="w-full px-3 py-2.5 bg-slate-50 rounded-lg text-sm border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition">
+        </div>
+      </div>
+
+      <!-- 学生信息板块 -->
+      <div class="rounded-xl bg-slate-50 border border-slate-200 p-3 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="user" aria-hidden="true" class="lucide lucide-user w-3.5 h-3.5 text-brand-500"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>学生信息
+          </span>
+          <button type="button" onclick="closeLessonModal(); openStudentModal()" class="text-[11px] text-brand-600 hover:text-brand-700">+ 新建学生档案</button>
+        </div>
+        <div>
+          <label class="text-xs text-slate-500 mb-1 block">学生姓名</label>
+          <input type="text" name="studentName" required="" list="studentNames" placeholder="输入或选择学生" autocomplete="off" oninput="autoFillStudentSource(this.value)" class="w-full px-3 py-2.5 bg-white rounded-lg text-sm border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition">
+          <datalist id="studentNames"></datalist>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-500 mb-1 block">学生来源</label>
+            <select name="studentSource" class="w-full px-3 py-2.5 bg-white rounded-lg text-sm border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition">
+              <option value="机构">机构</option>
+              <option value="闲鱼">闲鱼</option>
+              <option value="微信">微信</option>
+              <option value="小红书">小红书</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs text-slate-500 mb-1 block">收入来源</label>
+            <select name="incomeSource" class="w-full px-3 py-2.5 bg-white rounded-lg text-sm border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition">
+              <option value="机构">机构</option>
+              <option value="闲鱼">闲鱼</option>
+              <option value="微信">微信</option>
+              <option value="小红书">小红书</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="text-xs text-slate-500 mb-1 block">年级 / 科目备注</label>
+          <input type="text" name="subject" placeholder="例如：初二数学" class="w-full px-3 py-2.5 bg-white rounded-lg text-sm border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition">
+        </div>
+      </div>
+
+      <!-- 计费板块 -->
+      <div class="rounded-xl bg-slate-50 border border-slate-200 p-3 space-y-3">
+        <div class="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
+          <i data-lucide="calculator" class="w-3.5 h-3.5 text-brand-500"></i>计费方式
+        </div>
+        <div class="flex gap-2">
+          <label class="flex-1 cursor-pointer">
+            <input type="radio" name="billingType" value="hourly" checked onchange="onBillingTypeChange()" class="peer sr-only">
+            <div class="text-center py-2 rounded-lg text-sm border border-slate-200 peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-700 transition">正课（按时）</div>
+          </label>
+          <label class="flex-1 cursor-pointer">
+            <input type="radio" name="billingType" value="flat" onchange="onBillingTypeChange()" class="peer sr-only">
+            <div class="text-center py-2 rounded-lg text-sm border border-slate-200 peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-700 transition">督学（包干）</div>
+          </label>
+        </div>
+        <div class="grid grid-cols-[1fr_1fr_auto] gap-2 items-end">
+          <div>
+            <label class="text-xs text-slate-500 mb-1 block" id="priceLabel">价格</label>
+            <input type="number" name="rate" min="0" step="10" required value="200" class="w-full px-3 py-2.5 bg-white rounded-lg text-sm border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition">
+          </div>
+          <div>
+            <label class="text-xs text-slate-500 mb-1 block">单位</label>
+            <select name="rateUnit" id="rateUnitSel" onchange="updateRateLabel()" class="w-full px-3 py-2.5 bg-white rounded-lg text-sm border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition">
+              <optgroup label="正课">
+                <option value="hour">元/时</option>
+                <option value="minute">元/分</option>
+              </optgroup>
+              <optgroup label="督学">
+                <option value="time">元/次</option>
+                <option value="week">元/周</option>
+                <option value="month">元/月</option>
+              </optgroup>
+            </select>
+          </div>
+          <div id="amountPreview" class="text-xs text-brand-600 font-medium whitespace-nowrap py-2.5"></div>
+        </div>
+        <div>
+          <label class="text-xs text-slate-500 mb-1 block">时长（分钟）</label>
+          <input type="number" name="duration" min="15" step="15" required value="60" oninput="updateAmountPreview()" class="w-full px-3 py-2.5 bg-white rounded-lg text-sm border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition">
+        </div>
+      </div>
+
+      <label class="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-brand-200 bg-brand-50/40 cursor-pointer">
+        <input type="checkbox" name="deductPrepaid" class="w-4 h-4 accent-[#14b8a6]">
+        <span class="text-xs font-medium text-slate-700">从预付课时中销课</span>
+        <span id="prepaidHint" class="text-[11px] text-slate-400 ml-auto"></span>
+      </label>
+
+      <div>
+        <label class="text-xs text-slate-500 mb-1 block">状态</label>
+        <div class="flex gap-2">
+          <label class="flex-1">
+            <input type="radio" name="status" value="scheduled" checked="" class="peer sr-only">
+            <div class="text-center py-2.5 rounded-lg text-sm border border-slate-200 peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-700 transition">待开始</div>
+          </label>
+          <label class="flex-1">
+            <input type="radio" name="status" value="completed" class="peer sr-only">
+            <div class="text-center py-2.5 rounded-lg text-sm border border-slate-200 peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-700 transition">已完成</div>
+          </label>
+          <label class="flex-1">
+            <input type="radio" name="status" value="cancelled" class="peer sr-only">
+            <div class="text-center py-2.5 rounded-lg text-sm border border-slate-200 peer-checked:border-rose-400 peer-checked:bg-rose-50 peer-checked:text-rose-600 transition">已取消</div>
+          </label>
+        </div>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="button" onclick="closeLessonModal()" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm hover:bg-slate-50 transition">取消</button>
+        <button type="submit" class="flex-1 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition">保存</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ========== 学生档案模态框 ========== -->
+<div id="studentModal" class="fixed inset-0 bg-black/40 z-50 items-center justify-center p-4 hidden" onclick="closeModalBack(event,'studentModal')">
+  <div class="modal-enter bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto hide-scroll" onclick="event.stopPropagation()">
+    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
+      <h3 id="studentModalTitle" class="text-lg font-semibold text-slate-900">编辑学生档案</h3>
+      <button onclick="closeStudentModal()" class="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-500">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x w-5 h-5"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+      </button>
+    </div>
+    <form id="studentForm" class="px-6 py-5 space-y-4" onsubmit="saveStudent(event)">
+      <input type="hidden" name="id" value="mvhkdq4zzvj9mc">
+      <div>
+        <label class="text-xs text-slate-500 mb-1 block">学生姓名</label>
+        <input type="text" name="name" required="" placeholder="请输入学生姓名" class="w-full px-3 py-2.5 bg-slate-50 rounded-lg text-sm border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-xs text-slate-500 mb-1 block">学生来源</label>
+          <select name="source" class="w-full px-3 py-2.5 bg-slate-50 rounded-lg text-sm border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition">
+            <option value="机构">机构</option>
+            <option value="闲鱼">闲鱼</option>
+            <option value="微信">微信</option>
+            <option value="小红书">小红书</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-slate-500 mb-1 block">收入来源</label>
+          <select name="incomeSource" class="w-full px-3 py-2.5 bg-slate-50 rounded-lg text-sm border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition">
+            <option value="机构">机构</option>
+            <option value="闲鱼">闲鱼</option>
+            <option value="微信">微信</option>
+            <option value="小红书">小红书</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-xs text-slate-500 mb-1 block">年级</label>
+          <input type="text" name="grade" placeholder="例如：初二" class="w-full px-3 py-2.5 bg-slate-50 rounded-lg text-sm border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition">
+        </div>
+        <div>
+          <label class="text-xs text-slate-500 mb-1 block">科目</label>
+          <input type="text" name="subject" placeholder="例如：数学" class="w-full px-3 py-2.5 bg-slate-50 rounded-lg text-sm border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition">
+        </div>
+      </div>
+      <!-- 默认计费 -->
+      <div class="rounded-xl bg-slate-50 border border-slate-200 p-3 space-y-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
+            <i data-lucide="calculator" class="w-3.5 h-3.5 text-brand-500"></i>默认计费方式
+          </span>
+          <span class="text-[10px] text-slate-400 ml-auto">新建课程时自动带入</span>
+        </div>
+        <div class="flex gap-2">
+          <label class="flex-1 cursor-pointer">
+            <input type="radio" name="billingType" value="hourly" checked onchange="onStudentBillingChange()" class="peer sr-only">
+            <div class="text-center py-2 rounded-lg text-sm border border-slate-200 peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-700 transition">正课（按时）</div>
+          </label>
+          <label class="flex-1 cursor-pointer">
+            <input type="radio" name="billingType" value="flat" onchange="onStudentBillingChange()" class="peer sr-only">
+            <div class="text-center py-2 rounded-lg text-sm border border-slate-200 peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-700 transition">督学（包干）</div>
+          </label>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-xs text-slate-500 mb-1 block">价格</label>
+            <input type="number" name="rate" min="0" step="10" placeholder="200" class="w-full px-3 py-2.5 bg-white rounded-lg text-sm border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition">
+          </div>
+          <div>
+            <label class="text-xs text-slate-500 mb-1 block">单位</label>
+            <select name="rateUnit" id="studentRateUnitSel" class="w-full px-3 py-2.5 bg-white rounded-lg text-sm border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition">
+              <optgroup label="正课">
+                <option value="hour">元/时</option>
+                <option value="minute">元/分</option>
+              </optgroup>
+              <optgroup label="督学">
+                <option value="time">元/次</option>
+                <option value="week">元/周</option>
+                <option value="month">元/月</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div>
+        <label class="text-xs text-slate-500 mb-1 block">预付课时（已购，节）</label>
+        <input type="number" name="prepaidTotal" min="0" step="1" placeholder="0" class="w-full px-3 py-2.5 bg-slate-50 rounded-lg text-sm border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition">
+      </div>
+      <div>
+        <label class="text-xs text-slate-500 mb-1 block">联系方式</label>
+        <input type="text" name="phone" placeholder="手机号 / 微信" class="w-full px-3 py-2.5 bg-slate-50 rounded-lg text-sm border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition">
+      </div>
+      <div>
+        <label class="text-xs text-slate-500 mb-1 block">备注</label>
+        <textarea name="note" rows="2" placeholder="学习情况、家长要求等" class="w-full px-3 py-2.5 bg-slate-50 rounded-lg text-sm border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition resize-none"></textarea>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="button" onclick="closeStudentModal()" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm hover:bg-slate-50 transition">取消</button>
+        <button type="submit" class="flex-1 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition">保存</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ========== 设置模态框 ========== -->
+<div id="settingsModal" class="fixed inset-0 bg-black/40 z-50 hidden items-center justify-center p-4" onclick="closeModalBack(event,'settingsModal')">
+  <div class="modal-enter bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto hide-scroll" onclick="event.stopPropagation()">
+    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
+      <h3 class="text-lg font-semibold text-slate-900">设置与数据</h3>
+      <button onclick="closeSettings()" class="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-500">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x w-5 h-5"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+      </button>
+    </div>
+    <div class="px-6 py-5 space-y-5">
+      <div>
+        <h4 class="text-sm font-semibold text-slate-700 mb-3">默认值</h4>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-500 mb-1 block">默认单价（元/小时）</label>
+            <input id="defRate" type="number" min="0" step="10" class="w-full px-3 py-2.5 bg-slate-50 rounded-lg text-sm border border-slate-200 outline-none">
+          </div>
+          <div>
+            <label class="text-xs text-slate-500 mb-1 block">默认时长（分钟）</label>
+            <input id="defDuration" type="number" min="1" step="15" class="w-full px-3 py-2.5 bg-slate-50 rounded-lg text-sm border border-slate-200 outline-none">
+          </div>
+        </div>
+        <button onclick="saveSettings()" class="mt-3 w-full py-2 rounded-lg bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition">保存默认值</button>
+      </div>
+      <div class="border-t border-slate-100 pt-5">
+        <h4 class="text-sm font-semibold text-slate-700 mb-3">导入导出</h4>
+
+        <div class="text-xs font-medium text-slate-500 mb-2">课程记录</div>
+        <div class="grid grid-cols-2 gap-2 mb-4">
+          <button onclick="exportExcel()" class="flex items-center justify-center gap-1.5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition tap">
+            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>导出 Excel
+          </button>
+          <button onclick="exportLessonsCsv()" class="flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-700 hover:bg-slate-50 transition tap">
+            <i data-lucide="file-text" class="w-4 h-4"></i>导出 CSV
+          </button>
+          <button onclick="downloadLessonTemplate()" class="flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-700 hover:bg-slate-50 transition tap">
+            <i data-lucide="download" class="w-4 h-4"></i>下载模板
+          </button>
+          <label class="flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-700 hover:bg-slate-50 transition cursor-pointer tap">
+            <i data-lucide="upload" class="w-4 h-4"></i>导入课程
+            <input type="file" accept=".xlsx,.xls,.csv" onchange="handleImportFile(event,'lesson')" class="hidden">
+          </label>
+        </div>
+
+        <div class="text-xs font-medium text-slate-500 mb-2">学生档案</div>
+        <div class="grid grid-cols-2 gap-2 mb-4">
+          <button onclick="exportStudentsExcel()" class="flex items-center justify-center gap-1.5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition tap">
+            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>导出 Excel
+          </button>
+          <button onclick="exportStudentsCsv()" class="flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-700 hover:bg-slate-50 transition tap">
+            <i data-lucide="file-text" class="w-4 h-4"></i>导出 CSV
+          </button>
+          <button onclick="downloadStudentTemplate()" class="flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-700 hover:bg-slate-50 transition tap">
+            <i data-lucide="download" class="w-4 h-4"></i>下载模板
+          </button>
+          <label class="flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-700 hover:bg-slate-50 transition cursor-pointer tap">
+            <i data-lucide="upload" class="w-4 h-4"></i>导入学生
+            <input type="file" accept=".xlsx,.xls,.csv" onchange="handleImportFile(event,'student')" class="hidden">
+          </label>
+        </div>
+
+        <div class="text-xs font-medium text-slate-500 mb-2">整包备份（JSON，含全部数据）</div>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="exportData()" class="flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-700 hover:bg-slate-50 transition tap">
+            <i data-lucide="download" class="w-4 h-4"></i>导出 JSON
+          </button>
+          <label class="flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-700 hover:bg-slate-50 transition cursor-pointer tap">
+            <i data-lucide="upload" class="w-4 h-4"></i>导入 JSON
+            <input type="file" accept=".json" onchange="importData(event)" class="hidden">
+          </label>
+        </div>
+
+        <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+          导入支持 Excel（.xlsx）与 CSV，表头需与模板一致；必填项缺失或格式错误会逐行提示；重复记录按「日期+学生+开始时间」自动跳过；大文件分批处理并显示进度。
+        </p>
+        <p id="backupStatus" class="text-xs text-slate-500 mt-2"></p>
+        <button onclick="clearAllData()" class="mt-3 w-full py-2 rounded-lg border border-rose-200 text-rose-600 text-sm hover:bg-rose-50 transition">清空全部数据</button>
+        <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+          数据保存在当前浏览器中，换设备/换浏览器请导出 JSON 再导入。
+        </p>
+      </div>
+      <div class="border-t border-slate-100 pt-5">
+        <h4 class="text-sm font-semibold text-slate-700 mb-3">云端同步</h4>
+        <div id="cloudState" class="text-xs text-slate-500 mb-2"></div>
+        <div class="flex gap-2">
+          <input id="cloudEnvInput" type="text" placeholder="CloudBase 环境 ID" class="flex-1 px-3 py-2 bg-slate-50 rounded-lg text-sm border border-slate-200 outline-none focus:border-brand-500">
+          <button onclick="saveCloudEnv()" class="px-4 py-2 rounded-lg bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition tap">保存并连接</button>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mt-2">
+          <button id="cloudLoginBtn" onclick="openAuthModal()" class="py-2 rounded-lg border border-slate-200 text-sm text-slate-700 hover:bg-slate-50 transition tap">登录 / 注册</button>
+          <button id="cloudPushBtn" onclick="manualPushCloud()" class="py-2 rounded-lg border border-slate-200 text-sm text-slate-700 hover:bg-slate-50 transition tap">上传本地数据</button>
+          <button id="cloudPullBtn" onclick="manualPullCloud()" class="py-2 rounded-lg border border-slate-200 text-sm text-slate-700 hover:bg-slate-50 transition tap">拉取云端数据</button>
+          <button id="cloudLogoutBtn" onclick="cloudLogout()" class="py-2 rounded-lg border border-rose-200 text-sm text-rose-600 hover:bg-rose-50 transition tap">退出登录</button>
+        </div>
+        <p class="text-xs text-slate-400 mt-2 leading-relaxed">开启后数据保存在你的私人云端空间，换设备登录同一账号即可看到相同数据；未配置时数据仅存本机浏览器。配置方法见随附《CloudBase接入步骤.md》。</p>
+      </div>
+      <div class="border-t border-slate-100 pt-5">
+        <h4 class="text-sm font-semibold text-slate-700 mb-3">应用锁</h4>
+        <div id="pinStatus" class="text-xs text-slate-500 mb-2"></div>
+        <div class="flex gap-2">
+          <input id="pinInput" type="password" inputmode="numeric" maxlength="4" placeholder="4 位数字密码" class="flex-1 px-3 py-2 bg-slate-50 rounded-lg text-sm border border-slate-200 outline-none focus:border-brand-500">
+          <button onclick="savePin()" class="px-4 py-2 rounded-lg bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition tap">设置</button>
+          <button id="pinClearBtn" onclick="clearPin()" class="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 text-sm hover:bg-slate-50 transition tap">取消锁</button>
+        </div>
+        <p class="text-xs text-slate-400 mt-2 leading-relaxed">设置后每次打开需输入密码。密码仅做轻量防护，请勿存放极度敏感信息。</p>
+      </div>
+      <div class="border-t border-slate-100 pt-5">
+        <h4 class="text-sm font-semibold text-slate-700 mb-3">示例数据</h4>
+        <p id="demoStatus" class="text-xs text-slate-500 mb-2"></p>
+        <button id="clearDemoBtn" onclick="clearDemoData()" class="w-full py-2 rounded-lg border border-amber-200 text-amber-700 text-sm hover:bg-amber-50 transition tap">清除示例数据</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 日期详情弹窗 ========== -->
+<div id="dayPopup" class="fixed inset-0 bg-black/40 z-50 hidden items-end md:items-center justify-center p-0 md:p-4" onclick="closeModalBack(event,'dayPopup')">
+  <div class="modal-enter bg-white rounded-t-2xl md:rounded-2xl shadow-2xl w-full max-w-md max-h-[85vh] overflow-hidden flex flex-col" onclick="event.stopPropagation()">
+    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+      <div>
+        <div id="dayPopupTitle" class="text-lg font-semibold text-slate-900"></div>
+        <div id="dayPopupSub" class="text-xs text-slate-500 mt-0.5"></div>
+      </div>
+      <button onclick="closeDayPopup()" class="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-500">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x w-5 h-5"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+      </button>
+    </div>
+    <div id="dayPopupList" class="flex-1 overflow-y-auto hide-scroll p-4 space-y-3"></div>
+    <div class="p-4 border-t border-slate-100 bg-slate-50">
+      <button onclick="quickAddFromPopup()" class="w-full py-2.5 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition">在这一天添加课程</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 课程详情弹窗（周课表方块点击，从方块位置放大展开） ========== -->
+<div id="lessonDetailModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" onclick="if(event.target===event.currentTarget)closeLessonDetail()">
+  <div id="lessonDetailMask" class="absolute inset-0 bg-black/40"></div>
+  <div id="lessonDetailCard" class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[85vh] overflow-hidden flex flex-col" onclick="event.stopPropagation()">
+    <div id="lessonDetailBar" style="height:4px;background:#14b8a6;"></div>
+    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+      <div class="min-w-0">
+        <h3 id="lessonDetailTitle" class="text-lg font-semibold text-slate-900 truncate">课程详情</h3>
+        <div id="lessonDetailSub" class="text-xs text-slate-500 mt-0.5"></div>
+      </div>
+      <button onclick="closeLessonDetail()" aria-label="关闭" class="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-500 shrink-0">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+    <div id="lessonDetailBody" class="flex-1 overflow-y-auto hide-scroll px-6 py-5"></div>
+    <div class="px-6 pb-5 pt-1">
+      <button id="lessonDetailEditBtn" class="w-full py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition flex items-center justify-center gap-1.5">
+        <i data-lucide="pencil" class="w-4 h-4"></i>编辑课程
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm shadow-lg z-[100] hidden"></div>
+
+<!-- 导入进度条（大文件分批处理时显示） -->
+<div id="importProgress" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2.5 rounded-lg text-sm shadow-lg z-[100] hidden items-center gap-3">
+  <span id="importProgressText">正在导入…</span>
+  <div class="w-28 h-1.5 bg-white/25 rounded-full overflow-hidden"><div id="importProgressBar" class="h-full bg-brand-500 rounded-full transition-all" style="width:0%"></div></div>
+</div>
+
+<!-- 导入结果模态框 -->
+<div id="importResultModal" class="fixed inset-0 bg-black/40 z-50 hidden items-center justify-center p-4" onclick="closeModalBack(event,'importResultModal')">
+  <div class="modal-enter bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[80vh] overflow-y-auto hide-scroll" onclick="event.stopPropagation()">
+    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white">
+      <h3 class="text-lg font-semibold text-slate-900">导入结果</h3>
+      <button onclick="document.getElementById('importResultModal').classList.add('hidden');document.getElementById('importResultModal').classList.remove('flex')" class="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-500">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+    <div id="importResultBody" class="px-6 py-5 text-sm text-slate-600 space-y-2"></div>
+    <div class="px-6 pb-5">
+      <button onclick="document.getElementById('importResultModal').classList.add('hidden');document.getElementById('importResultModal').classList.remove('flex')" class="w-full py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition">知道了</button>
+    </div>
+  </div>
+</div>
+
+<!-- 应用锁屏 -->
+<div id="pinLock" class="fixed inset-0 z-[200] hidden items-center justify-center bg-slate-50 p-6">
+  <div class="w-full max-w-xs text-center">
+    <div class="w-14 h-14 rounded-2xl bg-brand-500 flex items-center justify-center mx-auto mb-4">
+      <i data-lucide="lock" class="w-7 h-7 text-white"></i>
+    </div>
+    <div class="font-semibold text-slate-900 mb-1">课时工作台已锁定</div>
+    <div class="text-xs text-slate-500 mb-4">请输入 4 位密码</div>
+    <input id="pinUnlockInput" type="password" inputmode="numeric" maxlength="4" autocomplete="off" class="w-full text-center tracking-[0.6em] px-3 py-3 bg-white rounded-xl text-lg border border-slate-200 outline-none focus:border-brand-500" onkeydown="if(event.key==='Enter')tryUnlock()">
+    <button onclick="tryUnlock()" class="mt-4 w-full py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition">解锁</button>
+    <div id="pinError" class="text-xs text-rose-500 mt-2 hidden">密码不正确，请重试</div>
+  </div>
+</div>
+
+<script>
+// ==================== 常量与工具 ====================
+const STORE_KEY = 'lessons_v1';
+const SETTINGS_KEY = 'settings_v1';
+const STUDENTS_KEY = 'students_v1';
+const COLLAPSED_GAPS_KEY = 'collapsedGaps_v1';
+const COLLAPSED_GAPS_INIT_KEY = 'collapsedGapsInit_v1';
+const HIDE_INACTIVE_KEY = 'hideInactiveStudents_v1';
+const INACTIVE_DAYS = 60;   // 超过 60 天无课视为长期不上课
+const SOURCES = ['机构','闲鱼','微信','小红书','其他'];
+const STATUS_TAGS = {
+  scheduled: { text:'待开始', cls:'bg-amber-50 text-amber-700 border-amber-200' },
+  completed: { text:'已完成', cls:'bg-brand-50 text-brand-700 border-brand-200' },
+  cancelled: { text:'已取消', cls:'bg-slate-100 text-slate-500 border-slate-200' }
+};
+
+// ==================== 安全转义 / JS 字符串转义 ====================
+function esc(s){
+  return String(s==null?'':s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function jsStr(s){ return String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+// ==================== 数据备份提醒 ====================
+const BACKUP_KEY='lastBackupAt_v1';
+const PIN_KEY='appPin_v1';
+function getLastBackup(){ try{ return localStorage.getItem(BACKUP_KEY)||''; }catch(e){ return ''; } }
+function setLastBackup(){ try{ localStorage.setItem(BACKUP_KEY, new Date().toISOString()); }catch(e){} }
+function backupOverdue(){
+  const l=getLastBackup();
+  if(!l) return true;
+  const t=new Date(l).getTime();
+  if(isNaN(t)) return true;
+  return (Date.now()-t) > 7*86400000;
+}
+function backupDaysAgo(){
+  const l=getLastBackup(); if(!l) return 0;
+  const t=new Date(l).getTime(); if(isNaN(t)) return 0;
+  return Math.floor((Date.now()-t)/86400000);
+}
+
+// ==================== 示例数据 ====================
+function demoLessonCount(){ return state.lessons.filter(l=>l.demo).length; }
+function demoStudentCount(){ return state.students.filter(s=>s.demo).length; }
+function isDemoData(){ return demoLessonCount()>0 || demoStudentCount()>0; }
+function clearDemoData(){
+  const dl=demoLessonCount(), ds=demoStudentCount();
+  if(dl+ds===0){ toast('没有示例数据'); return; }
+  if(!confirm('将清除 '+dl+' 条示例课程和 '+ds+' 位示例学生（仅清除 demo 标记的数据，你自己录入的数据不受影响）？')) return;
+  const rmLessons=state.lessons.filter(l=>l.demo);
+  const rmStudents=state.students.filter(s=>s.demo);
+  state.lessons=state.lessons.filter(l=>!l.demo);
+  state.students=state.students.filter(s=>!s.demo);
+  saveLessons(state.lessons); saveStudents(state.students);
+  renderPage();
+  toastUndo('已清除示例数据', function(){
+    state.lessons=state.lessons.concat(rmLessons);
+    state.students=state.students.concat(rmStudents);
+    saveLessons(state.lessons); saveStudents(state.students);
+    renderPage(); toast('已恢复示例数据');
+  });
+}
+
+// ==================== 可撤销的 Toast ====================
+let undoTimer=null;
+function toastUndo(msg, restoreFn){
+  const t=document.getElementById('toast');
+  if(!t) return;
+  clearTimeout(undoTimer);
+  t.innerHTML='';
+  t.appendChild(document.createTextNode(msg+' '));
+  const btn=document.createElement('button');
+  btn.textContent='撤销';
+  btn.className='ml-1 underline font-semibold tap';
+  btn.onclick=function(){
+    clearTimeout(undoTimer);
+    t.classList.add('hidden');
+    try{ restoreFn(); }catch(e){}
+  };
+  t.appendChild(btn);
+  t.classList.remove('hidden');
+  undoTimer=setTimeout(function(){ t.classList.add('hidden'); }, 6000);
+}
+
+// ==================== 移动端更多菜单 ====================
+function toggleMobileMenu(){
+  const m=document.getElementById('mobileMenu');
+  if(!m) return;
+  const hidden=m.classList.contains('hidden');
+  if(hidden){ m.classList.remove('hidden'); createIcons(m); }
+  else { m.classList.add('hidden'); }
+}
+function closeMobileMenu(){
+  const m=document.getElementById('mobileMenu');
+  if(m) m.classList.add('hidden');
+}
+
+// ==================== 应用锁（PIN） ====================
+function pinHash(pin){
+  let h=5381;
+  for(let i=0;i<pin.length;i++){ h=((h<<5)+h+pin.charCodeAt(i))>>>0; }
+  return 'h'+h;
+}
+function isPinSet(){ try{ return !!localStorage.getItem(PIN_KEY); }catch(e){ return false; } }
+function checkPinLock(){
+  try{
+    if(!isPinSet()) return;
+    if(sessionStorage.getItem('pinUnlocked')==='1') return;
+  }catch(e){}
+  const lock=document.getElementById('pinLock');
+  if(!lock) return;
+  lock.classList.remove('hidden'); lock.classList.add('flex');
+  setTimeout(function(){ const i=document.getElementById('pinUnlockInput'); if(i) i.focus(); }, 60);
+}
+function tryUnlock(){
+  const input=document.getElementById('pinUnlockInput');
+  const err=document.getElementById('pinError');
+  let stored='';
+  try{ stored=localStorage.getItem(PIN_KEY)||''; }catch(e){}
+  if(input && pinHash(input.value)===stored){
+    try{ sessionStorage.setItem('pinUnlocked','1'); }catch(e){}
+    document.getElementById('pinLock').classList.add('hidden');
+    document.getElementById('pinLock').classList.remove('flex');
+    if(err) err.classList.add('hidden');
+  } else if(err){
+    err.classList.remove('hidden');
+  }
+}
+function savePin(){
+  const v=(document.getElementById('pinInput').value||'').trim();
+  if(!/^\d{4}$/.test(v)){ toast('请输入 4 位数字密码'); return; }
+  try{ localStorage.setItem(PIN_KEY, pinHash(v)); }catch(e){}
+  document.getElementById('pinInput').value='';
+  refreshPinStatus(); toast('应用锁已设置');
+}
+function clearPin(){
+  try{ localStorage.removeItem(PIN_KEY); sessionStorage.removeItem('pinUnlocked'); }catch(e){}
+  refreshPinStatus(); toast('应用锁已取消');
+}
+function refreshPinStatus(){
+  const el=document.getElementById('pinStatus');
+  if(el) el.textContent = isPinSet() ? '当前已设置应用锁（打开页面需输入密码）' : '当前未设置应用锁';
+  const cb=document.getElementById('pinClearBtn');
+  if(cb) cb.style.display = isPinSet() ? '' : 'none';
+  refreshDemoStatus();
+}
+function refreshDemoStatus(){
+  const el=document.getElementById('demoStatus');
+  const btn=document.getElementById('clearDemoBtn');
+  if(!el) return;
+  const dl=demoLessonCount(), ds=demoStudentCount();
+  if(dl+ds>0){
+    el.textContent='当前包含 '+dl+' 条示例课程、'+ds+' 位示例学生。';
+    if(btn) btn.style.display='';
+  } else {
+    el.textContent='当前没有示例数据。';
+    if(btn) btn.style.display='none';
+  }
+}
+
+// ==================== xlsx 按需懒加载 ====================
+var _xlsxPromise=null;
+function loadXLSX(){
+  if(window.XLSX) return Promise.resolve(window.XLSX);
+  if(_xlsxPromise) return _xlsxPromise;
+  _xlsxPromise=new Promise(function(resolve,reject){
+    var s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+    s.onload=function(){ window.XLSX ? resolve(window.XLSX) : reject(new Error('xlsx 加载异常')); };
+    s.onerror=function(){ _xlsxPromise=null; reject(new Error('xlsx 加载失败')); };
+    document.head.appendChild(s);
+  });
+  return _xlsxPromise;
+}
+
+// ==================== 导入结果展示 ====================
+function showImportResult(title, result){
+  const body=document.getElementById('importResultBody');
+  if(!body) return;
+  let html='<div class="text-slate-700 font-medium mb-1">'+esc(title)+'导入完成</div>'
+    +'<div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">'
+    +'<span>新增 <b class="text-emerald-600">'+result.added+'</b></span>'
+    +'<span>更新 <b class="text-brand-600">'+result.updated+'</b></span>'
+    +'<span>跳过重复 <b class="text-amber-600">'+result.skipped+'</b></span>'
+    +'<span>失败 <b class="text-rose-600">'+result.failed+'</b></span>'
+    +'</div>';
+  if(result.errors && result.errors.length){
+    html+='<div class="mt-3"><div class="text-xs font-semibold text-rose-600 mb-1">失败明细（最多显示 20 条）：</div>'
+      +'<div class="max-h-48 overflow-y-auto hide-scroll space-y-1">'
+      +result.errors.slice(0,20).map(function(e){ return '<div class="text-xs text-slate-500">'+esc(e)+'</div>'; }).join('')
+      +'</div></div>';
+  }
+  body.innerHTML=html;
+  const modal=document.getElementById('importResultModal');
+  modal.classList.remove('hidden'); modal.classList.add('flex');
+  createIcons(modal);
+}
+
+// ==================== 导入导出字段字典（同一份驱动导出表头 + 模板 + 导入映射） ====================
+const BILLING_MAP = {'正课':'hourly','督学':'flat'};
+const BILLING_REV = {'hourly':'正课','flat':'督学'};
+const RATEUNIT_MAP = {'时':'hour','分':'minute','次':'time','周':'week','月':'month'};
+const RATEUNIT_REV = {'hour':'时','minute':'分','time':'次','week':'周','month':'月'};
+const STATUS_MAP = {'待开始':'scheduled','已完成':'completed','已取消':'cancelled'};
+const STATUS_REV = {'scheduled':'待开始','completed':'已完成','cancelled':'已取消'};
+const BOOL_MAP = {'是':true,'否':false,'true':true,'false':false,'1':true,'0':false};
+
+const LESSON_COLS = [
+  { key:'id', label:'ID', type:'text', required:false },
+  { key:'date', label:'日期', type:'date', required:true },
+  { key:'time', label:'开始时间', type:'time', required:true },
+  { key:'duration', label:'时长(分钟)', type:'number', required:true, default:60 },
+  { key:'studentName', label:'学生', type:'text', required:true },
+  { key:'studentSource', label:'学生来源', type:'text', required:false, default:'机构' },
+  { key:'subject', label:'科目', type:'text', required:false, default:'' },
+  { key:'billingType', label:'计费方式', type:'map', map:BILLING_MAP, rev:BILLING_REV, required:false, default:'hourly' },
+  { key:'rateUnit', label:'计费单位', type:'map', map:RATEUNIT_MAP, rev:RATEUNIT_REV, required:false, default:'hour' },
+  { key:'rate', label:'单价(元)', type:'number', required:false, default:0 },
+  { key:'incomeSource', label:'收入来源', type:'text', required:false, default:'机构' },
+  { key:'deductPrepaid', label:'预付销课', type:'bool', map:BOOL_MAP, required:false, default:false },
+  { key:'status', label:'状态', type:'map', map:STATUS_MAP, rev:STATUS_REV, required:false, default:'scheduled' },
+  { key:'income', label:'课时费(元)', type:'number', readonly:true },
+];
+
+const STUDENT_COLS = [
+  { key:'id', label:'ID', type:'text', required:false },
+  { key:'name', label:'姓名', type:'text', required:true },
+  { key:'source', label:'来源', type:'text', required:false, default:'机构' },
+  { key:'incomeSource', label:'收入来源', type:'text', required:false, default:'机构' },
+  { key:'grade', label:'年级', type:'text', required:false, default:'' },
+  { key:'subject', label:'科目', type:'text', required:false, default:'' },
+  { key:'rate', label:'单价(元)', type:'number', required:false, default:0 },
+  { key:'billingType', label:'计费方式', type:'map', map:BILLING_MAP, rev:BILLING_REV, required:false, default:'hourly' },
+  { key:'rateUnit', label:'计费单位', type:'map', map:RATEUNIT_MAP, rev:RATEUNIT_REV, required:false, default:'hour' },
+  { key:'prepaidTotal', label:'预付总课时', type:'number', required:false, default:0 },
+  { key:'phone', label:'电话', type:'text', required:false, default:'' },
+  { key:'note', label:'备注', type:'text', required:false, default:'' },
+];
+
+function genId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+function pad(n){ return String(n).padStart(2,'0'); }
+function todayStr(){ const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function toISODate(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function parseDate(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+function addDays(d,n){ const x=new Date(d); x.setDate(d.getDate()+n); return x; }
+function thisMonthStart(){ const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-01`; }
+function thisMonthEnd(){
+  const d=new Date(); const x=new Date(d.getFullYear(), d.getMonth()+1, 0); return toISODate(x);
+}
+function getMonday(d){ const day=d.getDay(); const diff=day===0?-6:1-day; const m=new Date(d); m.setDate(d.getDate()+diff); return m; }
+function weekRange(dateStr){ const monday=getMonday(parseDate(dateStr)); return [monday, addDays(monday,6)]; }
+function weekKey(dateStr){ const [m,s]=weekRange(dateStr); return `${toISODate(m)}~${toISODate(s)}`; }
+
+// 开始时间 + 时长 → 结束时间
+function endTime(time, duration){
+  const [h,m]=time.split(':').map(Number);
+  let total = h*60 + m + Number(duration||0);
+  total = ((total % 1440) + 1440) % 1440;
+  return `${pad(Math.floor(total/60))}:${pad(total%60)}`;
+}
+function timeRange(l){ return `${l.time}-${endTime(l.time, l.duration)}`; }
+
+// ==================== 农历（使用浏览器内置中国农历历法） ====================
+const LUNAR_DAYS=['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十',
+  '十一','十二','十三','十四','十五','十六','十七','十八','十九','二十',
+  '廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
+
+let _lunarFmt=null;
+function solarToLunar(y,m,d){
+  try{
+    if(!_lunarFmt) _lunarFmt=new Intl.DateTimeFormat('zh-CN-u-ca-chinese',{month:'long',day:'numeric'});
+    const parts=_lunarFmt.formatToParts(new Date(y,m-1,d,12));
+    let month='', day=1;
+    parts.forEach(p=>{
+      if(p.type==='month') month=p.value;
+      else if(p.type==='day') day=Number(p.value);
+    });
+    return { month, day };
+  }catch(e){ return null; }
+}
+
+// 日历上的农历短文本：初一显示月份（如「九月」），其余显示日（如「十二」）
+function lunarLabel(y,m,d){
+  const l=solarToLunar(y,m,d);
+  if(!l) return '';
+  if(l.day===1) return l.month;
+  return LUNAR_DAYS[l.day-1]||'';
+}
+
+// 统一价格展示：根据 billingType / rateUnit 计算单次课程的收入和标签
+function incomeOf(lesson){
+  if(lesson.status==='cancelled') return 0;
+  const rate=Number(lesson.rate||0);
+  const dur=Number(lesson.duration||0);
+  const type=lesson.billingType||'hourly';
+  const unit=lesson.rateUnit||(type==='hourly'?'hour':'time');
+  if(type==='flat') return rate;                         // 督学：包干一次一个价
+  // 正课：按时长算
+  if(unit==='minute') return Number((rate*dur).toFixed(2)); // 元/分
+  return Number((rate*dur/60).toFixed(2));                 // 元/时
+}
+function priceLabelOf(l){
+  const type=l.billingType||'hourly';
+  const unit=l.rateUnit||(type==='hourly'?'hour':'time');
+  const dur=Number(l.duration||0);
+  const rate=Number(l.rate||0);
+  if(type==='flat'){
+    const map={time:'次', week:'周', month:'月'};
+    return `督学 · ¥${rate}/${map[unit]||'次'}`;
+  }
+  const map={hour:'时', minute:'分'};
+  return `${dur}分钟 · ¥${rate}/${map[unit]||'时'}`;
+}
+function totalDuration(list){ return list.reduce((s,l)=>s+(l.status!=='cancelled'?Number(l.duration):0),0); }
+function totalIncome(list){ return list.reduce((s,l)=>s+incomeOf(l),0); }
+
+// 计费切换：更新单价单位选项 + 预览金额
+function onBillingTypeChange(){
+  const f=document.getElementById('lessonForm');
+  if(!f) return;
+  const type=f.elements.billingType.value;
+  const sel=document.getElementById('rateUnitSel');
+  // 只保留该类型对应的选项，其他隐藏
+  Array.from(sel.options).forEach(opt=>{
+    const grp=opt.parentElement.label;
+    opt.style.display=(type==='hourly' && grp==='正课')||(type==='flat' && grp==='督学')?'':'none';
+  });
+  // 切类型时重置默认单位
+  sel.value = type==='hourly' ? 'hour' : 'time';
+  updateAmountPreview();
+}
+function updateAmountPreview(){
+  const f=document.getElementById('lessonForm');
+  if(!f) return;
+  const rate=Number(f.elements.rate.value||0);
+  const dur=Number(f.elements.duration.value||0);
+  const type=f.elements.billingType.value;
+  const unit=f.elements.rateUnit.value;
+  let amt=0, note='';
+  if(type==='flat'){ amt=rate; note='督学包干'; }
+  else if(unit==='minute'){ amt=rate*dur; note=`${dur}分钟 · ${rate}元/分`; }
+  else{ amt=rate*dur/60; note=`${dur}分钟 · ${rate}元/时`; }
+  document.getElementById('amountPreview').textContent = `≈ ¥${amt.toFixed(0)}（${note}）`;
+}
+function updateRateLabel(){ updateAmountPreview(); }
+
+// 学生表单计费切换
+function onStudentBillingChange(){
+  const f=document.getElementById('studentForm');
+  if(!f) return;
+  const type=f.elements.billingType.value;
+  const sel=document.getElementById('studentRateUnitSel');
+  Array.from(sel.options).forEach(opt=>{
+    const grp=opt.parentElement.label;
+    opt.style.display=(type==='hourly' && grp==='正课')||(type==='flat' && grp==='督学')?'':'none';
+  });
+  sel.value = type==='hourly' ? 'hour' : 'time';
+}
+
+// ==================== 预付销课 ====================
+// 已销课时 = 该学生「已完成」且勾选销课的课程节数
+function prepaidUsedOf(name){
+  return state.lessons.filter(l=>l.studentName===name && l.status==='completed' && l.deductPrepaid).length;
+}
+function prepaidTotalOf(st){ return Number(st.prepaidTotal||0); }
+function prepaidRemainingOf(st){ return Math.max(0, prepaidTotalOf(st)-prepaidUsedOf(st.name)); }
+
+// ==================== 数据层（本地缓存 + 云端双写） ====================
+function normalizeLessons(list){ list.forEach(l=>{ if(!l.billingType) l.billingType='hourly'; if(!l.rateUnit) l.rateUnit=l.billingType==='flat'?'time':'hour'; }); return list; }
+function normalizeStudents(list){ list.forEach(s=>{ if(!s.billingType) s.billingType='hourly'; if(!s.rateUnit) s.rateUnit=s.billingType==='flat'?'time':'hour'; }); return list; }
+function loadLessons(){
+  let data=localStorage.getItem(STORE_KEY);
+  if(!data){
+    localStorage.setItem(STORE_KEY, JSON.stringify(seedData()));
+    data=localStorage.getItem(STORE_KEY);
+  }
+  return normalizeLessons(JSON.parse(data));
+}
+function saveLessonsLocal(list){ localStorage.setItem(STORE_KEY, JSON.stringify(list)); }
+function saveLessons(list){ saveLessonsLocal(list); cloudSyncPush('lessons', list); }
+
+function loadStudents(){
+  let data=localStorage.getItem(STUDENTS_KEY);
+  if(!data){
+    const lessons=loadLessons();
+    localStorage.setItem(STUDENTS_KEY, JSON.stringify(deriveStudents(lessons)));
+    data=localStorage.getItem(STUDENTS_KEY);
+  }
+  return normalizeStudents(JSON.parse(data));
+}
+function saveStudentsLocal(list){ localStorage.setItem(STUDENTS_KEY, JSON.stringify(list)); }
+function saveStudents(list){ saveStudentsLocal(list); cloudSyncPush('students', list); }
+
+function deriveStudents(lessons){
+  const map=new Map();
+  const grades=['初一','初二','初三','高一','高二','高三'];
+  lessons.forEach(l=>{
+    if(!map.has(l.studentName)){
+      map.set(l.studentName, {
+        id: genId(),
+        name: l.studentName,
+        source: l.studentSource || '机构',
+        incomeSource: l.incomeSource || l.studentSource || '机构',
+        grade: grades.includes((l.subject||'').slice(0,2)) ? (l.subject||'').slice(0,2) : '',
+        subject: (l.subject||'').replace(/^(初一|初二|初三|高一|高二|高三)/,''),
+        phone: '',
+        note: '',
+        rate: l.rate,
+        prepaidTotal: 0,
+        demo: !!l.demo
+      });
+    }
+  });
+  return [...map.values()];
+}
+
+function loadSettings(){
+  const def={defaultRate:200, defaultDuration:60};
+  try{ return Object.assign({}, def, JSON.parse(localStorage.getItem(SETTINGS_KEY))||{}); }catch(e){ return def; }
+}
+function saveSettingsObjLocal(s){ localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); }
+function saveSettingsObj(s){ saveSettingsObjLocal(s); cloudPushSettings(s); }
+
+function seedData(){
+  const base=new Date();
+  const mk=(offset,time,name,src,subject,duration,rate,status)=>{
+    const d=new Date(base); d.setDate(base.getDate()+offset);
+    return { id:genId(), date:toISODate(d), time, studentName:name, studentSource:src, subject, duration, rate, incomeSource:src, status, completedAt: status==='completed'?d.toISOString():null, demo:true };
+  };
+  return [
+    mk(-6,'09:00','张同学','闲鱼','初二数学',120,200,'completed'),
+    mk(-5,'14:00','李同学','微信','英语语法',60,180,'completed'),
+    mk(-4,'10:00','王同学','机构','物理辅导',90,220,'completed'),
+    mk(-4,'15:30','赵同学','闲鱼','高三数学',120,250,'completed'),
+    mk(-3,'09:30','陈同学','机构','初一数学',60,200,'completed'),
+    mk(-2,'13:00','刘同学','微信','英语口语',90,180,'completed'),
+    mk(-2,'19:00','孙同学','机构','高二物理',120,220,'completed'),
+    mk(-1,'10:00','周同学','闲鱼','初三数学',90,230,'completed'),
+    mk(-1,'15:00','吴同学','机构','英语听力',60,180,'completed'),
+    mk(0,'09:00','郑同学','机构','数学强化',90,220,'scheduled'),
+    mk(0,'14:30','何同学','闲鱼','物理冲刺',120,250,'scheduled'),
+    mk(0,'19:30','林同学','微信','英语写作',60,200,'scheduled'),
+    mk(1,'10:00','黄同学','机构','初二数学',90,200,'scheduled'),
+    mk(1,'16:00','冯同学','其他','高一化学',60,230,'scheduled'),
+    mk(2,'09:00','许同学','机构','数学思维',90,220,'scheduled'),
+    mk(2,'14:00','邓同学','闲鱼','高三物理',120,260,'scheduled'),
+    mk(3,'10:30','曹同学','微信','英语阅读',60,200,'scheduled'),
+  ];
+}
+
+let state = {
+  lessons: loadLessons(),
+  students: loadStudents(),
+  currentTab: 'dashboard',
+  calendarCursor: new Date(),
+  studentsView: 'list',
+  trendCursor: new Date(),
+  collapsedGaps: (()=>{ try{ return JSON.parse(localStorage.getItem(COLLAPSED_GAPS_KEY))||[]; }catch(e){ return []; } })(),
+  filters: { status:'all', time:'all', timeFrom:'', timeTo:'', student:'all', subject:'all', search:'' },
+  // 课程列表批量删除
+  lessonSelectMode: false,
+  selectedLessonIds: [],
+  // 学生批量删除 & 隐藏
+  studentSelectMode: false,
+  selectedStudentIds: [],
+  hideInactiveStudents: (()=>{ try{ return localStorage.getItem(HIDE_INACTIVE_KEY)==='1'; }catch(e){ return false; } })(),
+  showHiddenStudents: false
+};
+
+function getLessonsSorted(filter){
+  let list=[...state.lessons];
+  if(filter && filter!=='all') list=list.filter(l=>l.status===filter);
+  list.sort((a,b)=> (a.date+a.time).localeCompare(b.date+b.time));
+  return list;
+}
+
+// ==================== 导航 ====================
+const TABS = [
+  { key:'dashboard', label:'仪表盘', icon:'layout-dashboard' },
+  { key:'list',      label:'课程列表', icon:'list-ordered' },
+  { key:'students',  label:'学生',   icon:'users' },
+];
+
+function renderNav(){
+  const activeCls='bg-brand-50 text-brand-700 border-brand-200';
+  const idleCls='text-slate-500 hover:bg-slate-100 border-transparent';
+  document.getElementById('sidebarNav').innerHTML = TABS.map(t=>`
+    <button onclick="switchTab('${t.key}')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm border-l-2 transition ${state.currentTab===t.key?activeCls:idleCls}">
+      <i data-lucide="${t.icon}" class="w-4 h-4"></i><span>${t.label}</span>
+    </button>
+  `).join('');
+
+  document.getElementById('bottomNav').innerHTML = TABS.map(t=>{
+    const active=state.currentTab===t.key;
+    return `
+      <button onclick="switchTab('${t.key}')" class="flex flex-col items-center justify-center py-2.5 gap-0.5 ${active?'text-brand-600':'text-slate-400'}">
+        <i data-lucide="${t.icon}" class="w-5 h-5"></i>
+        <span class="text-[10px]">${t.label}</span>
+      </button>`;
+  }).join('');
+
+  document.getElementById('pageTitle').textContent = TABS.find(t=>t.key===state.currentTab).label;
+  updatePageSub();
+  lucide.createIcons();
+}
+
+function updatePageSub(){
+  const el=document.getElementById('pageSub');
+  if(state.currentTab==='dashboard'){
+    const d=new Date();
+    el.textContent = `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 · 周${'日一二三四五六'[d.getDay()]}`;
+  }else if(state.currentTab==='list'){
+    el.textContent = `共 ${state.lessons.length} 条课程记录`;
+  }else{
+    el.textContent = `共 ${state.students.length} 位学生`;
+  }
+}
+
+function switchTab(key){ state.currentTab=key; renderNav(); renderPage(); }
+
+// ==================== 仪表盘 ====================
+// ==================== 每周课程表 ====================
+const SUBJECT_COLORS=['#6366f1','#f59e0b','#3b82f6','#ec4899','#10b981','#8b5cf6','#0ea5e9'];
+function colorOfSubject(s){
+  const str=s||'';
+  let h=0;
+  for(let i=0;i<str.length;i++) h=(h*31+str.charCodeAt(i))>>>0;
+  return SUBJECT_COLORS[h%SUBJECT_COLORS.length];
+}
+function toMinutes(t){ const [h,m]=(t||'0:0').split(':').map(Number); return (h||0)*60+(m||0); }
+
+function renderWeekTimetable(){
+  const today=todayStr();
+  const [mon,sun]=weekRange(today);
+  const days=[];
+  for(let i=0;i<7;i++){ const d=addDays(mon,i); days.push({ d, ds:toISODate(d) }); }
+  const list=state.lessons.filter(l=>l.status!=='cancelled' && l.date>=days[0].ds && l.date<=days[6].ds);
+  const count=list.length;
+  const doneCount=list.filter(l=>l.status==='completed').length;
+  const hours=(totalDuration(list)/60).toFixed(0);
+
+  // ============ 算本周每小时是否有课（跨所有天） ============
+  const hourUsed=new Set();
+  list.forEach(l=>{
+    const h0=Math.floor(toMinutes(l.time)/60);
+    const h1=Math.floor((toMinutes(l.time)+l.duration-1)/60);
+    for(let h=h0;h<=h1;h++) hourUsed.add(h);
+  });
+
+  let rows;
+  if(list.length===0){
+    rows=[{type:'hour',h:7},{type:'hour',h:8},{type:'hour',h:9},{type:'hour',h:10},{type:'hour',h:11},{type:'hour',h:12},{type:'hour',h:13},{type:'hour',h:14},{type:'hour',h:15},{type:'hour',h:16},{type:'hour',h:17},{type:'hour',h:18}];
+  } else {
+    const sorted=[...hourUsed].sort((a,b)=>a-b);
+    const firstH=Math.max(0, sorted[0]-1);
+    const lastH=Math.min(24, sorted[sorted.length-1]+2);
+    // 构建 rows: hour / gap 交替
+    rows=[];
+    let gapStart=null;
+    for(let h=firstH;h<=lastH;h++){
+      if(hourUsed.has(h)){
+        if(gapStart!==null){
+          rows.push({type:'gap', start:gapStart, end:h-1, hours:h-gapStart});
+          gapStart=null;
+        }
+        rows.push({type:'hour', h});
+      } else {
+        if(gapStart===null) gapStart=h;
+      }
+    }
+    if(gapStart!==null){
+      rows.push({type:'gap', start:gapStart, end:lastH, hours:lastH-gapStart+1});
+    }
+  }
+
+  const gapRowIndices=rows.map((r,i)=>r.type==='gap'?i:-1).filter(i=>i>=0);
+
+  // 旧格式 localStorage 修复：如果存的索引不是有效 gap 索引 → 重置
+  const validIdx=new Set(gapRowIndices);
+  const legacy=state.collapsedGaps.length>0 && state.collapsedGaps.some(i=>!validIdx.has(i));
+  if(legacy){
+    state.collapsedGaps=[...gapRowIndices];
+    try{ localStorage.setItem(COLLAPSED_GAPS_KEY, JSON.stringify(state.collapsedGaps)); }catch(e){}
+  }
+  // 首次进入页面：自动折叠所有 gap（之后用户手动展开/折叠的状态会被保留）
+  if(!legacy && state.collapsedGaps.length===0 && gapRowIndices.length>0){
+    const initialized = (()=>{ try { return localStorage.getItem(COLLAPSED_GAPS_INIT_KEY)==='1'; } catch(e){ return false; } })();
+    if(!initialized){
+      state.collapsedGaps=[...gapRowIndices];
+      try{ localStorage.setItem(COLLAPSED_GAPS_KEY, JSON.stringify(state.collapsedGaps)); localStorage.setItem(COLLAPSED_GAPS_INIT_KEY,'1'); }catch(e){}
+    }
+  }
+
+  const COLLAPSED_GAP_H=1;   // 折叠 gap 占位 1h
+  const BASE_H=360;
+
+  // 算每行占用小时数 + 总高度
+  let totalH=0;
+  const rowInfo=rows.map((r,i)=>{
+    if(r.type==='hour'){
+      totalH+=1;
+      return { type:'hour', h:r.h, hours:1, collapsed:false };
+    } else {
+      const collapsed=state.collapsedGaps.includes(i);
+      const useH = collapsed ? COLLAPSED_GAP_H : r.hours;
+      totalH+=useH;
+      return { type:'gap', gapIdx:i, realHours:r.hours, realStart:r.start, realEnd:r.end, collapsed, useH };
+    }
+  });
+  const pxPerHour=Math.max(26, BASE_H/totalH);
+  const H=totalH*pxPerHour;
+
+  // 累加每行 startPx 与 hPx
+  let accY=0;
+  const rowPx=rowInfo.map(info=>{
+    const startPx=accY;
+    const hPx = info.type==='hour' ? pxPerHour : info.useH*pxPerHour;
+    accY+=hPx;
+    return {...info, startPx, hPx};
+  });
+
+  // ============ 左侧刻度 ============
+  const hourLabelsArr=[];
+  rowPx.forEach(rp=>{
+    if(rp.type==='hour'){
+      const pct=rp.startPx/H*100;
+      hourLabelsArr.push(`<div class="absolute right-1 text-[10px] text-slate-400 -translate-y-1/2" style="top:${pct}%">${String(rp.h).padStart(2,'0')}:00</div>`);
+    } else {
+      // gap 行
+      const label=`${rp.realHours}h`;
+      if(rp.collapsed){
+        const gapPct=(rp.startPx+rp.hPx/2)/H*100;
+        hourLabelsArr.push(`<button onclick="toggleGap(${rp.gapIdx})" class="absolute left-0 text-[9px] px-1 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-400 -translate-y-1/2 transition" style="top:${gapPct}%;white-space:nowrap"><i data-lucide="chevron-down" class="inline w-3 h-3"></i> ${label}</button>`);
+      } else {
+        // 展开态：折叠按钮移到时段顶部（占住首个整点位置），并补上时段内其余整点的小时刻度，时间轴连续可读
+        const topPct=rp.startPx/H*100;
+        hourLabelsArr.push(`<button onclick="toggleGap(${rp.gapIdx})" class="absolute left-0 right-1 text-[9px] px-1 py-0.5 rounded bg-brand-50 hover:bg-brand-100 text-brand-500 -translate-y-1/2 transition flex items-center gap-1" style="top:${topPct}%"><i data-lucide="chevron-up" class="w-3 h-3"></i>${label}</button>`);
+        for(let h=rp.realStart+1; h<=rp.realEnd; h++){
+          if(h<0||h>23) continue;
+          const pct=(rp.startPx+(h-rp.realStart)*pxPerHour)/H*100;
+          hourLabelsArr.push(`<div class="absolute right-1 text-[10px] text-slate-400 -translate-y-1/2" style="top:${pct}%">${String(h).padStart(2,'0')}:00</div>`);
+        }
+      }
+    }
+  });
+
+  // 展开的 gap → 每列 day col 在每个整点边界画水平虚线（空白时段也按小时分格，不再是空片）
+  const dayColGaps=[];
+  rowPx.filter(rp=>rp.type==='gap' && !rp.collapsed).forEach(rp=>{
+    for(let h=rp.realStart; h<=rp.realEnd; h++){
+      if(h<0||h>23) continue;
+      const y=rp.startPx+(h-rp.realStart)*pxPerHour;
+      dayColGaps.push({ top:y/H*100, bot:(y+1)/H*100 });
+    }
+  });
+
+  // ============ 每日列 + 课程块 ============
+  const colsWithGap=days.map(day=>{
+    const items=list.filter(l=>l.date===day.ds).sort((a,b)=>a.time.localeCompare(b.time));
+    const blocks=items.map(l=>{
+      const startMin=toMinutes(l.time);
+      const durMin=Number(l.duration);
+      const h0=Math.floor(startMin/60);
+      const mInH=(startMin%60)/60;
+      let yPx=0;
+      const hit=rowPx.find(rp=>rp.type==='hour' && rp.h===h0);
+      if(hit) yPx=hit.startPx + mInH*pxPerHour;
+      else yPx=startMin/60 * pxPerHour;   // fallback
+      const hgtPx=Math.max(12, durMin/60*pxPerHour);
+      const color=colorOfSubject(l.subject||l.studentName);
+      const topPct=yPx/H*100;
+      const hgtPct=hgtPx/H*100;
+      // 折叠态：彩色小方块；点击从方块位置放大展开详情弹窗
+      return `<button onclick="openLessonDetail('${l.id}', this)" class="absolute left-0.5 right-0.5 md:left-1 md:right-1 rounded-md px-1 md:px-1.5 py-0.5 text-left overflow-hidden text-white leading-tight transition hover:brightness-110" style="top:${topPct}%;height:${hgtPct}%;background:${color};box-shadow:0 1px 2px rgba(15,23,42,.18)"><div class="text-[9px] md:text-[10px] font-semibold truncate">${esc(l.subject)||'课程'}</div><div class="text-[8px] md:text-[9px] opacity-90 truncate">${esc(l.studentName)}</div></button>`;
+    }).join('');
+    const weekend=[0,6].includes(day.d.getDay());
+    const isToday=day.ds===today;
+    const gapLines=dayColGaps.map(g=>`<div class="absolute left-0 right-0 border-t border-dashed border-slate-300" style="top:${g.top}%;height:calc(${g.bot}% - ${g.top}%)"></div>`).join('');
+    return `<div class="relative rounded-lg ${weekend?'bg-slate-100/80':'bg-slate-50'} ${isToday?'ring-2 ring-brand-500':''}" style="height:${H}px">${gapLines}${blocks}</div>`;
+  }).join('');
+
+  // 时间范围 label（基于 rows 首尾 hour）
+  const firstHour = rowPx.find(rp=>rp.type==='hour');
+  const lastHour = [...rowPx].reverse().find(rp=>rp.type==='hour');
+  const segLabel = firstHour && lastHour
+    ? `${String(firstHour.h).padStart(2,'0')}:00 - ${String(lastHour.h).padStart(2,'0')}:00`
+    : '';
+  const collapsedCount = gapRowIndices.filter(i=>state.collapsedGaps.includes(i)).length;
+
+  return `
+  <div class="bg-white rounded-2xl p-4 md:p-5 border border-slate-200 shadow-sm">
+    <div class="flex items-start justify-between mb-4">
+      <div>
+        <h3 class="text-lg md:text-xl font-bold text-slate-900 leading-tight">本周</h3>
+        <div class="text-xs text-slate-400 mt-0.5">${days[0].ds.slice(5).replace('-','/')} - ${days[6].ds.slice(5).replace('-','/')}</div>
+      </div>
+      <div class="flex items-start gap-4 md:gap-6">
+        <div class="text-right">
+          <span class="text-2xl md:text-3xl font-bold text-brand-600">${count}</span>
+          <span class="text-xs text-slate-500 ml-1">节课</span>
+          <div class="text-[11px] text-slate-400 mt-0.5">已完成 ${doneCount}</div>
+        </div>
+        <div class="text-right">
+          <div class="text-base md:text-lg font-semibold text-slate-900">¥${totalIncome(list).toFixed(0)}</div>
+          <div class="text-[11px] text-slate-400">${hours}h</div>
+        </div>
+      </div>
+    </div>
+    <div class="text-sm font-semibold text-slate-800 mb-5">本周课表 · ${segLabel}${collapsedCount>0?`<span class="text-[11px] text-slate-400 font-normal ml-2">中间 ${collapsedCount} 段无课已折叠</span>`:''}</div>
+
+    <div class="overflow-x-auto hide-scroll">
+      <div class="min-w-[600px]">
+        <div class="flex gap-1 md:gap-1.5 mb-2 pl-10">
+          <div class="flex-1 grid grid-cols-7 gap-1 md:gap-1.5">${days.map(day=>{
+            const dow=['日','一','二','三','四','五','六'][day.d.getDay()];
+            const isToday=day.ds===today;
+            return `<div class="text-center"><div class="text-[11px] md:text-xs font-medium ${isToday?'text-brand-600':'text-slate-400'}">${dow}</div><div class="text-[10px] md:text-[11px] mt-0.5 ${isToday?'text-brand-600 font-semibold':'text-slate-400'}">${day.d.getDate()}</div></div>`;
+          }).join('')}</div>
+        </div>
+        <div class="flex gap-1 md:gap-1.5">
+          <div class="w-10 md:w-12 shrink-0 relative" style="height:${H}px">${hourLabelsArr.join('')}</div>
+          <div class="flex-1 grid grid-cols-7 gap-1 md:gap-1.5">${colsWithGap}</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// 折叠 / 展开 gap（gapIdx 是 rows 数组里 gap 行的索引）
+function toggleGap(gapIdx){
+  const i=state.collapsedGaps.indexOf(gapIdx);
+  if(i>=0) state.collapsedGaps.splice(i,1);
+  else state.collapsedGaps.push(gapIdx);
+  state.collapsedGaps.sort((a,b)=>a-b);
+  try{ localStorage.setItem(COLLAPSED_GAPS_KEY, JSON.stringify(state.collapsedGaps)); }catch(e){}
+  renderDashboard();
+  lucide.createIcons();
+}
+
+// ==================== 课程详情弹窗（从方块位置放大展开 / 缩小回原位） ====================
+var lessonDetailTrigger=null;
+function lessonDetailAnimOk(){
+  return !!window.matchMedia && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+// 触发方块与弹窗卡片的变换量（用于 FLIP 式放大/缩小动画）
+function lessonDetailFlip(card, fromEl){
+  var r=fromEl.getBoundingClientRect();
+  var cr=card.getBoundingClientRect();
+  return {
+    dx:(r.left+r.width/2)-(cr.left+cr.width/2),
+    dy:(r.top+r.height/2)-(cr.top+cr.height/2),
+    s:Math.max(0.12, Math.min(r.width/cr.width, r.height/cr.height))
+  };
+}
+function renderLessonDetailBody(l){
+  var tag=STATUS_TAGS[l.status];
+  var income=incomeOf(l);
+  var typeText = l.billingType==='flat' ? '督学（包干）' : '正课（按时）';
+  var unitMap={hour:'元/时',minute:'元/分',time:'元/次',week:'元/周',month:'元/月'};
+  var unit=unitMap[l.rateUnit]||'元/时';
+  var d=parseDate(l.date);
+  var dow=['周日','周一','周二','周三','周四','周五','周六'][d.getDay()];
+  var hrs=l.duration>=60 ? '（'+(l.duration/60).toFixed(1).replace(/\.0$/,'')+' 小时）' : '';
+  var rows=[
+    ['起止时间', (d.getMonth()+1)+'月'+d.getDate()+'日 '+dow+' · '+timeRange(l)],
+    ['时长', l.duration+' 分钟'+hrs],
+    ['课程类型', typeText+' · ¥'+l.rate+'/'+unit.replace('元/','')],
+    ['课时费', '¥'+income.toFixed(0)],
+    ['学生来源', l.studentSource||'—'],
+    ['收入来源', l.incomeSource||'—']
+  ];
+  if(l.deductPrepaid) rows.push(['预付销课','是（从预付课时中扣除）']);
+  if(l.status==='completed' && l.completedAt){
+    var cd=new Date(l.completedAt);
+    rows.push(['完成时间', cd.getFullYear()+'-'+pad(cd.getMonth()+1)+'-'+pad(cd.getDate())+' '+pad(cd.getHours())+':'+pad(cd.getMinutes())]);
+  }
+  var html='<div class="flex items-center gap-2 mb-4"><span class="text-[10px] px-2 py-0.5 rounded border '+tag.cls+'">'+tag.text+'</span><span class="text-sm text-slate-600">'+esc(l.studentName)+'</span></div>';
+  html+='<div class="space-y-3">'+rows.map(function(r){
+    return '<div class="flex items-start gap-3"><div class="w-20 shrink-0 text-xs text-slate-400 pt-0.5">'+r[0]+'</div><div class="flex-1 text-sm text-slate-900">'+esc(r[1])+'</div></div>';
+  }).join('')+'</div>';
+  return html;
+}
+function openLessonDetail(id, fromEl){
+  var l=state.lessons.find(function(x){return x.id===id;});
+  if(!l) return;
+  lessonDetailTrigger = (fromEl && fromEl.isConnected) ? fromEl : null;
+  var modal=document.getElementById('lessonDetailModal');
+  var card=document.getElementById('lessonDetailCard');
+  if(!modal||!card) return;
+  document.getElementById('lessonDetailBar').style.background=colorOfSubject(l.subject||l.studentName);
+  document.getElementById('lessonDetailTitle').textContent=(l.subject||'课程');
+  document.getElementById('lessonDetailSub').textContent=esc(l.studentName)+' · '+timeRange(l);
+  document.getElementById('lessonDetailBody').innerHTML=renderLessonDetailBody(l);
+  document.getElementById('lessonDetailEditBtn').setAttribute('onclick', "closeLessonDetail(true);editLesson('"+l.id+"')");
+  modal.classList.remove('hidden'); modal.classList.add('flex');
+  createIcons(modal);
+  if(lessonDetailAnimOk() && card.animate && lessonDetailTrigger){
+    var f=lessonDetailFlip(card, lessonDetailTrigger);
+    card.animate([
+      { transform:'translate('+f.dx+'px,'+f.dy+'px) scale('+f.s+')', opacity:0.15 },
+      { transform:'none', opacity:1 }
+    ], { duration:280, easing:'cubic-bezier(.2,.9,.3,1)' });
+    var mask=document.getElementById('lessonDetailMask');
+    if(mask && mask.animate) mask.animate([{opacity:0},{opacity:1}], {duration:200});
+  }
+}
+function closeLessonDetail(immediate){
+  var modal=document.getElementById('lessonDetailModal');
+  if(!modal || modal.classList.contains('hidden')) return;
+  var card=document.getElementById('lessonDetailCard');
+  var done=function(){
+    modal.classList.add('hidden'); modal.classList.remove('flex');
+    lessonDetailTrigger=null;
+  };
+  var trig=lessonDetailTrigger;
+  if(!immediate && lessonDetailAnimOk() && card.animate){
+    var dx=0, dy=0, s=0.9;
+    if(trig && trig.isConnected){
+      var f=lessonDetailFlip(card, trig);
+      dx=f.dx; dy=f.dy; s=f.s;
+    }
+    var anim=card.animate([
+      { transform:'none', opacity:1 },
+      { transform:'translate('+dx+'px,'+dy+'px) scale('+s+')', opacity:0 }
+    ], { duration:200, easing:'ease-in' });
+    anim.onfinish=done;
+    setTimeout(done, 450); // 动画异常兜底
+  } else {
+    done();
+  }
+}
+
+function renderDashboard(){
+  const today=todayStr();
+  const monthStart=thisMonthStart();
+  const monthEnd=thisMonthEnd();
+
+  const monthList=state.lessons.filter(l=> l.date>=monthStart && l.date<=monthEnd && l.status!=='cancelled');
+  const doneList=monthList.filter(l=>l.status==='completed');
+  const doneIncome=totalIncome(doneList);
+  const doneHours=totalDuration(doneList)/60;
+  const todayList=state.lessons.filter(l=>l.date===today).sort((a,b)=>a.time.localeCompare(b.time));
+
+  // 预警与提醒数据
+  const lowPrepaid=state.students.filter(st=>prepaidTotalOf(st)>0 && prepaidRemainingOf(st)<=2);
+  const needBackup=backupOverdue();
+  const lastBk=getLastBackup();
+  const demoOn=isDemoData();
+
+  const html=`
+  <div class="max-w-6xl mx-auto space-y-4 md:space-y-5">
+
+    <!-- 统计卡：本月已完成课时费 / 已上课时 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+        <div class="flex items-center gap-2 text-slate-500 text-sm mb-2">
+          <i data-lucide="wallet" class="w-4 h-4 text-brand-500"></i>本月已完成课时费
+        </div>
+        <div class="text-2xl md:text-3xl font-bold text-slate-900">¥${doneIncome.toFixed(0)}</div>
+        <div class="text-xs text-slate-400 mt-1">共 ${doneList.length} 节 · ${monthStart.slice(5)} ~ ${monthEnd.slice(5)}</div>
+      </div>
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+        <div class="flex items-center gap-2 text-slate-500 text-sm mb-2">
+          <i data-lucide="clock" class="w-4 h-4 text-brand-500"></i>已上课时
+        </div>
+        <div class="text-2xl md:text-3xl font-bold text-slate-900">${doneHours.toFixed(1)}<span class="text-base font-medium text-slate-400 ml-1">小时</span></div>
+        <div class="text-xs ${doneList.length>0?'text-slate-400':'text-amber-500'} mt-1">${doneList.length>0?'本月已完成课程的授课时长':'本月还没有已完成的课程，完成一节课后开始统计'}</div>
+      </div>
+    </div>
+
+    ${demoOn?`
+    <div class="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 text-sm text-amber-800">
+      <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i>
+      <span class="flex-1">当前包含示例数据（${demoLessonCount()} 条课程 / ${demoStudentCount()} 位学生），统计数字并非你的真实数据</span>
+      <button onclick="clearDemoData()" class="text-xs px-2.5 py-1 rounded-md bg-white border border-amber-300 text-amber-700 hover:bg-amber-100 transition tap shrink-0">清除</button>
+    </div>`:''}
+
+    ${lowPrepaid.length?`
+    <button onclick="switchTab('students')" class="w-full flex items-center gap-2 bg-rose-50 border border-rose-200 rounded-xl px-4 py-2.5 text-sm text-rose-700 text-left hover:bg-rose-100 transition">
+      <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i>
+      <span class="flex-1 truncate">${lowPrepaid.length} 位学生预付课时即将耗尽（≤2 节）：${esc(lowPrepaid.map(s=>s.name+' 剩'+prepaidRemainingOf(s)+'节').join('、'))}</span>
+      <i data-lucide="chevron-right" class="w-4 h-4 shrink-0"></i>
+    </button>`:''}
+
+    ${needBackup?`
+    <div class="flex items-center gap-2 bg-brand-50 border border-brand-200 rounded-xl px-4 py-2.5 text-sm text-brand-800">
+      <i data-lucide="bell" class="w-4 h-4 shrink-0"></i>
+      <span class="flex-1">${lastBk? '距上次数据备份已 '+backupDaysAgo()+' 天' : '尚未进行过数据备份'}，数据仅保存在当前浏览器，建议导出 JSON 备份</span>
+      <button onclick="exportData()" class="text-xs px-2.5 py-1 rounded-md bg-white border border-brand-300 text-brand-700 hover:bg-brand-100 transition tap shrink-0">导出 JSON</button>
+    </div>`:''}
+
+    <!-- 每周课程表 -->
+    ${renderWeekTimetable()}
+
+    <!-- 今日课程 -->
+    <div class="bg-white rounded-2xl p-4 md:p-5 border border-slate-200 shadow-sm">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-semibold text-slate-900">今日课程</h3>
+        <button onclick="openLessonModal('${today}')" class="text-xs text-brand-600 hover:text-brand-700 flex items-center gap-1">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>快速添加
+        </button>
+      </div>
+      ${todayList.length===0?`
+        <div class="py-10 text-center text-slate-400 text-sm">
+          <i data-lucide="coffee" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
+          今天还没有安排课程
+        </div>`:
+        `<div class="space-y-3">${todayList.map(l=>renderLessonCard(l,false)).join('')}</div>`}
+    </div>
+
+    <!-- 日历 -->
+    ${renderCalendarBlock()}
+
+    <!-- 本月收入来源分布 -->
+    ${renderIncomeSourceBlock()}
+  </div>
+  `;
+  document.getElementById('pageContent').innerHTML=html;
+  lucide.createIcons();
+}
+
+// 日历区块（嵌入仪表盘）
+function renderCalendarBlock(){
+  const cursor=state.calendarCursor;
+  const y=cursor.getFullYear(), m=cursor.getMonth();
+  const first=new Date(y,m,1);
+  const days=new Date(y,m+1,0).getDate();
+  const startDow=first.getDay();
+  const prefix=`${y}-${pad(m+1)}`;
+
+  const byDayCount={}, byDayIncome={};
+  state.lessons.forEach(l=>{
+    if(l.status==='cancelled') return;
+    if(l.date.startsWith(prefix)){
+      byDayCount[l.date]=(byDayCount[l.date]||0)+1;
+      byDayIncome[l.date]=(byDayIncome[l.date]||0)+incomeOf(l);
+    }
+  });
+  const monthIncome=Object.values(byDayIncome).reduce((a,b)=>a+b,0);
+  const today=todayStr();
+
+  let cells='';
+  for(let i=0;i<startDow;i++) cells+=`<div class="h-16 md:h-20"></div>`;
+  for(let d=1; d<=days; d++){
+    const ds=`${prefix}-${pad(d)}`;
+    const cnt=byDayCount[ds]||0;
+    const inc=byDayIncome[ds]||0;
+    // 3 档热力：无课 / 1-3 节 / 4 节及以上
+    const heat = cnt===0 ? 'heat-0' : (cnt<=3 ? 'heat-1' : 'heat-2');
+    const isToday=ds===today;
+    const lunar=lunarLabel(y, m+1, d);
+    const lunarColor = heat==='heat-2' ? 'rgba(255,255,255,.82)' : (isToday ? '#0d9488' : '#94a3b8');
+    cells+=`
+    <button onclick="openDayPopup('${ds}')" class="day-cell relative h-16 md:h-20 rounded-lg p-1.5 md:p-2 flex flex-col items-start justify-between text-left transition border ${isToday?'ring-2 ring-brand-500 border-brand-500':'border-slate-200'} ${heat}">
+      <div class="flex items-baseline gap-1 w-full">
+        <span class="text-[11px] md:text-xs font-medium leading-none ${heat==='heat-2'?'text-white':'text-slate-700'}">${d}</span>
+        <span class="text-[9px] leading-none truncate" style="color:${lunarColor}">${lunar}</span>
+      </div>
+      ${cnt>0?`
+        <div class="w-full">
+          <div class="text-[10px] md:text-xs leading-tight ${heat==='heat-2'?'text-white/95':'text-brand-800'}">${cnt}节</div>
+          <div class="text-[10px] md:text-xs leading-tight font-medium ${heat==='heat-2'?'text-white':'text-brand-700'}">¥${inc.toFixed(0)}</div>
+        </div>`:''}
+    </button>`;
+  }
+
+  return `
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 md:p-6">
+    <div class="flex items-center justify-between mb-4">
+      <button onclick="changeMonth(-1)" class="w-9 h-9 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-600 transition">
+        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+      </button>
+      <div class="text-center">
+        <div class="text-lg md:text-xl font-semibold text-slate-900">${y}年${m+1}月</div>
+        <div class="text-xs text-slate-500 mt-0.5">本月总收入 <span class="text-brand-600 font-semibold">¥${monthIncome.toFixed(0)}</span></div>
+      </div>
+      <button onclick="changeMonth(1)" class="w-9 h-9 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-600 transition">
+        <i data-lucide="chevron-right" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <div class="grid grid-cols-7 mb-2">
+      ${'日一二三四五六'.split('').map(x=>`<div class="text-center text-xs text-slate-400 py-1">${x}</div>`).join('')}
+    </div>
+
+    <div class="grid grid-cols-7 gap-1 md:gap-2">${cells}</div>
+
+    <div class="mt-5 flex items-center justify-center gap-4 text-[11px] text-slate-500">
+      <span class="flex items-center gap-1.5"><span class="w-4 h-3 rounded heat-0 border border-slate-300"></span>无课</span>
+      <span class="flex items-center gap-1.5"><span class="w-4 h-3 rounded heat-1"></span>有课（1-3节）</span>
+      <span class="flex items-center gap-1.5"><span class="w-4 h-3 rounded heat-2"></span>多课（4节及以上）</span>
+    </div>
+  </div>`;
+}
+
+// 本月收入来源分布（在日历下方）
+function renderIncomeSourceBlock(){
+  const prefix=toISODate(state.calendarCursor).slice(0,7);
+  const monthList=state.lessons.filter(l=>l.date.startsWith(prefix) && l.status!=='cancelled');
+  const monthIncome=totalIncome(monthList);
+
+  return `
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 md:p-5">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-semibold text-slate-900">本月收入来源分布</h3>
+      <span class="text-xs text-slate-400">${prefix.replace('-','年')}月</span>
+    </div>
+    ${monthIncome===0?`<div class="py-6 text-center text-sm text-slate-400">本月暂无收入</div>`:`
+    <div class="space-y-3">
+      ${SOURCES.map(s=>{
+        const sl=monthList.filter(l=>l.incomeSource===s);
+        const inc=totalIncome(sl);
+        const pct=monthIncome>0?Math.round(inc/monthIncome*100):0;
+        return `
+        <div>
+          <div class="flex justify-between text-sm mb-1">
+            <span class="text-slate-600">${s} <span class="text-xs text-slate-400">${sl.length}节</span></span>
+            <span class="text-slate-900 font-medium">¥${inc.toFixed(0)} <span class="text-xs text-slate-400">(${pct}%)</span></span>
+          </div>
+          <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div class="h-full bg-brand-500 rounded-full transition-all" style="width:${pct}%"></div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`}
+  </div>`;
+}
+
+function changeMonth(delta){
+  const c=new Date(state.calendarCursor);
+  c.setMonth(c.getMonth()+delta);
+  state.calendarCursor=c;
+  renderDashboard();
+  lucide.createIcons();
+}
+
+// ==================== 课程卡片 ====================
+function renderLessonCard(l, compact, selectable){
+  const tag=STATUS_TAGS[l.status];
+  const income=incomeOf(l);
+  const borderCls = l.status==='completed' ? 'border-brand-200 bg-brand-50/40'
+                  : (l.status==='cancelled' ? 'border-slate-200 bg-slate-50' : 'border-slate-200 bg-white');
+  const selecting = !!selectable && state.lessonSelectMode;
+  const checked = selecting && state.selectedLessonIds.includes(l.id);
+  const actions = compact ? '' : `
+    <div class="flex items-center gap-1.5 mt-3">
+      ${l.status!=='completed'?`<button onclick="markCompleted('${l.id}')" class="text-xs px-3 py-1.5 rounded-md bg-brand-100 text-brand-700 hover:bg-brand-200 transition flex items-center gap-1 tap"><i data-lucide="check" class="w-3 h-3"></i>完成</button>`:''}
+      <button onclick="editLesson('${l.id}')" class="text-xs px-3 py-1.5 rounded-md text-slate-500 hover:bg-slate-100 transition flex items-center gap-1 tap"><i data-lucide="pencil" class="w-3 h-3"></i>编辑</button>
+      <button onclick="deleteLesson('${l.id}')" class="text-xs px-3 py-1.5 rounded-md text-rose-500 hover:bg-rose-50 transition flex items-center gap-1 tap"><i data-lucide="trash-2" class="w-3 h-3"></i>删除</button>
+    </div>`;
+  const checkbox = selecting ? `
+      <button onclick="toggleSelectLesson('${l.id}')" class="shrink-0 mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center transition ${checked?'bg-rose-500 border-rose-500 text-white':'border-slate-300 bg-white text-transparent hover:border-rose-400'}" aria-label="选择课程">
+        <i data-lucide="check" class="w-3 h-3"></i>
+      </button>` : '';
+  return `
+  <div class="fade-in border rounded-xl ${borderCls} ${checked?'ring-2 ring-rose-300':''} p-3 md:p-4">
+    <div class="flex items-start gap-3">
+      ${checkbox}
+      <div class="w-[92px] md:w-28 shrink-0 pt-0.5">
+        <div class="text-[13px] md:text-sm font-bold text-brand-600 leading-tight whitespace-nowrap">${timeRange(l)}</div>
+        <div class="text-[10px] md:text-[11px] text-slate-400 mt-1">${l.duration}分钟</div>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-semibold text-slate-900 truncate">${esc(l.studentName)}</span>
+          ${l.subject?`<span class="text-xs text-slate-500 truncate">· ${esc(l.subject)}</span>`:''}
+          <span class="text-[10px] px-1.5 py-0.5 rounded border ${tag.cls} ml-auto shrink-0">${tag.text}</span>
+        </div>
+        <div class="flex items-center gap-1.5 mt-1.5 flex-wrap text-[11px] text-slate-500">
+          <span class="px-1.5 py-0.5 rounded bg-slate-100">学生来源：${esc(l.studentSource)}</span>
+          <span class="px-1.5 py-0.5 rounded bg-slate-100">收入来源：${esc(l.incomeSource)}</span>
+          ${l.deductPrepaid?`<span class="px-1.5 py-0.5 rounded bg-brand-100 text-brand-700 font-medium">预付销课</span>`:''}
+        </div>
+        <div class="mt-2 text-slate-900 font-semibold text-sm">¥${income.toFixed(0)}<span class="text-xs text-slate-400 font-normal ml-1">（${priceLabelOf(l)}）</span></div>
+        ${actions}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ==================== 日期弹窗 ====================
+let popupAddDate=null;
+function openDayPopup(ds){
+  popupAddDate=ds;
+  const list=state.lessons.filter(l=>l.date===ds).sort((a,b)=>a.time.localeCompare(b.time));
+  const inc=totalIncome(list);
+  const d=parseDate(ds);
+  const dow=['周日','周一','周二','周三','周四','周五','周六'][d.getDay()];
+  document.getElementById('dayPopupTitle').textContent=`${d.getMonth()+1}月${d.getDate()}日`;
+  document.getElementById('dayPopupSub').textContent=`${dow} · ${list.length}节课 · 收入 ¥${inc.toFixed(0)}`;
+  document.getElementById('dayPopupList').innerHTML = list.length===0
+    ? `<div class="text-center text-slate-400 text-sm py-10">这一天没有课程</div>`
+    : list.map(l=>renderLessonCard(l,false)).join('');
+  document.getElementById('dayPopup').classList.remove('hidden');
+  document.getElementById('dayPopup').classList.add('flex');
+  lucide.createIcons();
+}
+function closeDayPopup(){ document.getElementById('dayPopup').classList.add('hidden'); document.getElementById('dayPopup').classList.remove('flex'); }
+function quickAddFromPopup(){ closeDayPopup(); openLessonModal(popupAddDate); }
+
+// ==================== 课程列表 ====================
+// 搜索时保持输入框焦点
+function onSearchInput(el){
+  const val=el.value;
+  state.filters.search=val;
+  renderList();
+  const next=document.getElementById('lessonSearchInput');
+  if(next){ next.focus(); next.setSelectionRange(val.length, val.length); }
+}
+
+// 时间筛选：自定义时间段
+function onTimeFilterChange(val){
+  state.filters.time=val;
+  if(val==='custom' && (!state.filters.timeFrom || !state.filters.timeTo)){
+    state.filters.timeFrom=thisMonthStart();
+    state.filters.timeTo=thisMonthEnd();
+  }
+  renderPage();
+}
+function onTimeRangeChange(which, val){
+  if(which==='from') state.filters.timeFrom=val;
+  else state.filters.timeTo=val;
+  renderPage();
+}
+
+// 按当前筛选条件取课程列表
+function getFilteredLessons(){
+  const f=state.filters;
+  const today=todayStr();
+  const [mon,sun]=weekRange(today);
+  const monStr=toISODate(mon), sunStr=toISODate(sun);
+
+  let list=getLessonsSorted(f.status);
+  if(f.time==='today') list=list.filter(l=>l.date===today);
+  else if(f.time==='week') list=list.filter(l=>l.date>=monStr && l.date<=sunStr);
+  else if(f.time==='month') list=list.filter(l=>l.date>=thisMonthStart() && l.date<=thisMonthEnd());
+  else if(f.time==='custom'){
+    const from=f.timeFrom||'0000-00-00';
+    const to=f.timeTo||'9999-99-99';
+    list=list.filter(l=>l.date>=from && l.date<=to);
+  }
+  if(f.student!=='all') list=list.filter(l=>l.studentName===f.student);
+  if(f.subject!=='all') list=list.filter(l=>(l.subject||'')===f.subject);
+  if(f.search) list=list.filter(l=>(l.studentName+(l.subject||'')).includes(f.search));
+  return list;
+}
+
+// ==================== 课程批量删除 ====================
+function enterLessonSelectMode(){
+  state.lessonSelectMode=true;
+  state.selectedLessonIds=[];
+  renderList();
+  lucide.createIcons();
+}
+function exitLessonSelectMode(){
+  state.lessonSelectMode=false;
+  state.selectedLessonIds=[];
+  renderList();
+  lucide.createIcons();
+}
+function toggleSelectLesson(id){
+  const i=state.selectedLessonIds.indexOf(id);
+  if(i>=0) state.selectedLessonIds.splice(i,1);
+  else state.selectedLessonIds.push(id);
+  renderList();
+  lucide.createIcons();
+}
+function toggleSelectAllLessons(){
+  const ids=getFilteredLessons().map(l=>l.id);
+  state.selectedLessonIds = state.selectedLessonIds.length===ids.length ? [] : ids;
+  renderList();
+  lucide.createIcons();
+}
+function deleteSelectedLessons(){
+  const ids=state.selectedLessonIds;
+  if(ids.length===0) return;
+  if(!confirm(`确认删除选中的 ${ids.length} 条课程？`)) return;
+  const set=new Set(ids);
+  const removed=state.lessons.filter(l=>set.has(l.id));
+  state.lessons=state.lessons.filter(l=>!set.has(l.id));
+  saveLessons(state.lessons);
+  state.lessonSelectMode=false;
+  state.selectedLessonIds=[];
+  renderPage();
+  toastUndo(`已删除 ${ids.length} 条课程`, function(){
+    state.lessons=state.lessons.concat(removed);
+    saveLessons(state.lessons);
+    renderPage();
+    toast('已恢复');
+  });
+}
+
+function renderList(){
+  const f=state.filters;
+
+  // 筛选项数据源
+  const studentNames=[...new Set(state.lessons.map(l=>l.studentName))].sort();
+  const subjects=[...new Set(state.lessons.filter(l=>l.subject).map(l=>l.subject))].sort();
+
+  const list=getFilteredLessons();
+
+  // 批量模式下：剔除已不在当前筛选结果里的选中项
+  if(state.lessonSelectMode){
+    state.selectedLessonIds=state.selectedLessonIds.filter(id=>list.some(l=>l.id===id));
+  }
+
+  const groups={};
+  list.forEach(l=>{ const k=weekKey(l.date); (groups[k]=groups[k]||[]).push(l); });
+
+  const statusOpts=[{k:'all',t:'全部'},{k:'scheduled',t:'待开始'},{k:'completed',t:'已完成'},{k:'cancelled',t:'已取消'}];
+  const selectCls='px-2.5 py-2 bg-slate-50 rounded-lg text-sm border border-slate-200 outline-none focus:border-brand-500 transition';
+  const selCount=state.selectedLessonIds.length;
+  const allSelected=list.length>0 && selCount===list.length;
+
+  const html=`
+  <div class="max-w-6xl mx-auto">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-3 md:p-4 mb-4">
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="flex gap-1 bg-slate-100 p-1 rounded-lg shrink-0">
+          ${statusOpts.map(o=>`<button onclick="state.filters.status='${o.k}'; renderPage()" class="px-2.5 py-1.5 rounded-md text-xs md:text-sm transition whitespace-nowrap ${f.status===o.k?'bg-white text-brand-700 shadow-sm':'text-slate-500'}">${o.t}</button>`).join('')}
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 md:ml-auto">
+          <select onchange="onTimeFilterChange(this.value)" class="${selectCls}">
+            <option value="all" ${f.time==='all'?'selected':''}>全部时间</option>
+            <option value="today" ${f.time==='today'?'selected':''}>今天</option>
+            <option value="week" ${f.time==='week'?'selected':''}>本周</option>
+            <option value="month" ${f.time==='month'?'selected':''}>本月</option>
+            <option value="custom" ${f.time==='custom'?'selected':''}>自定义时间段</option>
+          </select>
+
+          ${f.time==='custom'?`
+          <div class="flex items-center gap-1 text-xs text-slate-400">
+            <input type="date" value="${f.timeFrom||''}" onchange="onTimeRangeChange('from',this.value)" class="${selectCls} text-xs">
+            <span>至</span>
+            <input type="date" value="${f.timeTo||''}" onchange="onTimeRangeChange('to',this.value)" class="${selectCls} text-xs">
+          </div>`:''}
+
+          <select onchange="state.filters.student=this.value; renderPage()" class="${selectCls}">
+            <option value="all" ${f.student==='all'?'selected':''}>全部学生</option>
+            ${studentNames.map(n=>`<option value="${esc(n)}" ${f.student===n?'selected':''}>${esc(n)}</option>`).join('')}
+          </select>
+
+          <select onchange="state.filters.subject=this.value; renderPage()" class="${selectCls}">
+            <option value="all" ${f.subject==='all'?'selected':''}>全部科目</option>
+            ${subjects.map(n=>`<option value="${esc(n)}" ${f.subject===n?'selected':''}>${esc(n)}</option>`).join('')}
+          </select>
+
+          <div class="relative w-full md:w-52">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input id="lessonSearchInput" value="${esc(f.search)}" placeholder="搜索学生 / 科目" oninput="onSearchInput(this)" class="w-full pl-9 pr-3 py-2 bg-slate-50 rounded-lg text-sm border border-slate-200 focus:border-brand-500 outline-none transition">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between px-1 mb-3 gap-2">
+      <div class="text-sm text-slate-500">筛选结果 <span class="text-slate-900 font-semibold">${list.length}</span> 节 · 合计 <span class="text-brand-600 font-semibold">¥${totalIncome(list).toFixed(0)}</span></div>
+      ${state.lessonSelectMode?`
+      <div class="flex items-center gap-1.5 shrink-0">
+        <span class="text-xs text-slate-500">已选 <span class="text-rose-600 font-semibold">${selCount}</span></span>
+        <button onclick="toggleSelectAllLessons()" class="text-xs px-2.5 py-1.5 rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 transition tap">${allSelected?'取消全选':'全选'}</button>
+        <button onclick="deleteSelectedLessons()" class="text-xs px-2.5 py-1.5 rounded-md bg-rose-500 hover:bg-rose-600 text-white transition flex items-center gap-1 tap ${selCount===0?'opacity-50 pointer-events-none':''}">
+          <i data-lucide="trash-2" class="w-3 h-3"></i>删除选中
+        </button>
+        <button onclick="exitLessonSelectMode()" class="text-xs px-2.5 py-1.5 rounded-md text-slate-500 hover:bg-slate-100 transition tap">取消</button>
+      </div>`:`
+      <div class="flex items-center gap-3 shrink-0">
+        <button onclick="exportExcel()" class="flex items-center gap-1.5 text-xs text-emerald-700 hover:text-emerald-800 tap">
+          <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>导出 Excel
+        </button>
+        <button onclick="enterLessonSelectMode()" class="flex items-center gap-1.5 text-xs text-rose-600 hover:text-rose-700 tap">
+          <i data-lucide="check-square" class="w-3.5 h-3.5"></i>批量删除
+        </button>
+      </div>`}
+    </div>
+
+    ${list.length===0?`
+      <div class="bg-white rounded-2xl border border-slate-200 p-10 text-center text-slate-400 text-sm">
+        <i data-lucide="file-text" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>没有符合条件的课程
+      </div>`:
+      Object.entries(groups).map(([key,arr])=>{
+        const [m,s]=key.split('~');
+        return `
+        <div class="mb-4">
+          <div class="flex items-center justify-between px-2 mb-2">
+            <div class="text-sm font-medium text-slate-700">${m.slice(5)} ~ ${s.slice(5)}</div>
+            <div class="text-xs text-slate-500">${arr.length}节 · ${(totalDuration(arr)/60).toFixed(1)}h · ¥${totalIncome(arr).toFixed(0)}</div>
+          </div>
+          <div class="space-y-2">${arr.map(l=>renderLessonCard(l,false,true)).join('')}</div>
+        </div>`;
+      }).join('')}
+  </div>`;
+  document.getElementById('pageContent').innerHTML=html;
+  lucide.createIcons();
+}
+
+// ==================== 学生板块 ====================
+const TREND_COLORS=[
+  {solid:'#6366f1',soft:'#eef2ff'},
+  {solid:'#10b981',soft:'#ecfdf5'},
+  {solid:'#14b8a6',soft:'#f0fdfa'},
+  {solid:'#f59e0b',soft:'#fffbeb'},
+  {solid:'#f43f5e',soft:'#fff1f2'},
+  {solid:'#8b5cf6',soft:'#f5f3ff'},
+];
+function toggleStudentsView(){
+  state.studentsView = state.studentsView==='trend' ? 'list' : 'trend';
+  state.studentSelectMode=false;
+  state.selectedStudentIds=[];
+  renderStudents();
+}
+
+// ==================== 学生隐藏 / 批量删除 ====================
+// 最近一次有效课程日期（不含已取消）
+function lastLessonDateOf(name){
+  let last='';
+  state.lessons.forEach(l=>{
+    if(l.studentName===name && l.status!=='cancelled' && l.date>last) last=l.date;
+  });
+  return last;
+}
+// 长期不上课：从未排课，或最近一节超过 INACTIVE_DAYS 天
+function isInactiveStudent(st){
+  const last=lastLessonDateOf(st.name);
+  if(!last) return true;
+  const days=Math.floor((parseDate(todayStr())-parseDate(last))/86400000);
+  return days>INACTIVE_DAYS;
+}
+function toggleHideInactiveStudents(){
+  state.hideInactiveStudents=!state.hideInactiveStudents;
+  state.showHiddenStudents=false;
+  try{ localStorage.setItem(HIDE_INACTIVE_KEY, state.hideInactiveStudents?'1':'0'); }catch(e){}
+  state.studentSelectMode=false;
+  state.selectedStudentIds=[];
+  renderStudents();
+}
+function toggleShowHiddenStudents(){
+  state.showHiddenStudents=!state.showHiddenStudents;
+  renderStudents();
+}
+function enterStudentSelectMode(){
+  state.studentSelectMode=true;
+  state.selectedStudentIds=[];
+  renderStudents();
+  lucide.createIcons();
+}
+function exitStudentSelectMode(){
+  state.studentSelectMode=false;
+  state.selectedStudentIds=[];
+  renderStudents();
+  lucide.createIcons();
+}
+function toggleSelectStudent(id){
+  const i=state.selectedStudentIds.indexOf(id);
+  if(i>=0) state.selectedStudentIds.splice(i,1);
+  else state.selectedStudentIds.push(id);
+  renderStudents();
+  lucide.createIcons();
+}
+function toggleSelectAllStudents(ids){
+  state.selectedStudentIds = state.selectedStudentIds.length===ids.length ? [] : ids.slice();
+  renderStudents();
+  lucide.createIcons();
+}
+function deleteSelectedStudents(){
+  const ids=state.selectedStudentIds;
+  if(ids.length===0) return;
+  if(!confirm(`确认删除选中的 ${ids.length} 位学生档案？已有课程记录不受影响。`)) return;
+  const set=new Set(ids);
+  const removed=state.students.filter(s=>set.has(s.id));
+  state.students=state.students.filter(s=>!set.has(s.id));
+  saveStudents(state.students);
+  state.studentSelectMode=false;
+  state.selectedStudentIds=[];
+  renderPage();
+  toastUndo(`已删除 ${ids.length} 位学生`, function(){
+    state.students=state.students.concat(removed);
+    saveStudents(state.students);
+    renderPage();
+    toast('已恢复');
+  });
+}
+function trendMoveMonth(delta){
+  state.trendCursor = new Date(state.trendCursor.getFullYear(), state.trendCursor.getMonth()+delta, 1);
+  renderStudents();
+}
+function renderTrendView(students){
+  const cur=state.trendCursor;
+  const y=cur.getFullYear(), m=cur.getMonth();
+  const prefix=`${y}-${String(m+1).padStart(2,'0')}`;
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  const startDow=(new Date(y,m,1).getDay()+6)%7; // 周一为第一列
+  const today=todayStr();
+
+  const cards=students.map((st,idx)=>{
+    const c=TREND_COLORS[idx%TREND_COLORS.length];
+    const ls=state.lessons.filter(l=>l.studentName===st.name && l.status!=='cancelled' && l.date.startsWith(prefix));
+    const byDay={};
+    ls.forEach(l=>{
+      if(!byDay[l.date]) byDay[l.date]={n:0,done:0};
+      byDay[l.date].n++;
+      if(l.status==='completed') byDay[l.date].done++;
+    });
+    const done=ls.filter(l=>l.status==='completed').length;
+
+    let cells='';
+    for(let i=0;i<startDow;i++) cells+='<div class="aspect-square rounded-md opacity-0"></div>';
+    for(let d=1;d<=daysInMonth;d++){
+      const ds=`${prefix}-${String(d).padStart(2,'0')}`;
+      const rec=byDay[ds];
+      const isToday=ds===today;
+      if(rec){
+        const allDone=rec.done===rec.n;
+        const cls=`aspect-square rounded-md flex items-center justify-center text-[10px] font-bold text-white cursor-pointer transition hover:scale-[1.08] hover:shadow-sm ${isToday?'ring-2 ring-offset-1 ring-slate-300':''}`;
+        if(allDone){
+          cells+=`<div class="${cls}" style="background:${c.solid}" title="${m+1}月${d}日 · 共 ${rec.n} 节" onclick="openDayPopup('${ds}')">✓</div>`;
+        } else {
+          // 有课但未全完成：用 mid 半透明实心色，不带✓但 hover 一样
+          cells+=`<div class="${cls}" style="background:${c.solid};opacity:.55" title="${m+1}月${d}日 · ${rec.done}/${rec.n} 节已完成" onclick="openDayPopup('${ds}')"></div>`;
+        }
+      } else {
+        cells+=`<div class="aspect-square rounded-md ${isToday?'ring-2 ring-slate-200':''}" style="background:${c.soft}"></div>`;
+      }
+    }
+
+    return `
+    <div class="fade-in bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold shrink-0" style="background:${c.soft};color:${c.solid}">${esc(st.name.slice(0,1))}</div>
+        <div class="font-semibold text-slate-900 truncate">${esc(st.name)}</div>
+      </div>
+      <div class="grid grid-cols-7 gap-1">${cells}</div>
+      <div class="flex items-center justify-center gap-5 mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500">
+        <span class="flex items-center gap-1"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i>${done}</span>
+        <span class="text-slate-300">|</span>
+        <span class="flex items-center gap-1"><i data-lucide="sun" class="w-3.5 h-3.5"></i>${ls.length}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="flex items-center justify-center gap-5 mb-5">
+      <button onclick="trendMoveMonth(-1)" class="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 transition"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+      <div class="text-sm font-medium text-slate-700 tabular-nums">${y}年${m+1}月</div>
+      <button onclick="trendMoveMonth(1)" class="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 transition"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+    </div>
+    ${students.length===0?`
+      <div class="bg-white rounded-2xl border border-slate-200 p-10 text-center text-slate-400 text-sm">
+        <i data-lucide="trending-up" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>还没有学生档案
+      </div>`:`
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">${cards}</div>`}`;
+}
+
+function renderStudents(){
+  const all=state.students.slice().sort((a,b)=>a.name.localeCompare(b.name,'zh'));
+  const inactiveIds=new Set(all.filter(isInactiveStudent).map(s=>s.id));
+  const hideOn=state.hideInactiveStudents;
+  const hiddenIds=new Set(hideOn && !state.showHiddenStudents ? [...inactiveIds] : []);
+  const students=all.filter(s=>!hiddenIds.has(s.id));
+  const visibleIds=students.map(s=>s.id);
+
+  // 批量模式下：剔除已不在列表里的选中项
+  if(state.studentSelectMode){
+    state.selectedStudentIds=state.selectedStudentIds.filter(id=>visibleIds.includes(id));
+  }
+  const selCount=state.selectedStudentIds.length;
+  const allSelected=visibleIds.length>0 && selCount===visibleIds.length;
+
+  const html=`
+  <div class="max-w-6xl mx-auto">
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+      <div class="text-sm text-slate-500">共 <span class="text-slate-900 font-semibold">${students.length}</span> 位学生${hiddenIds.size>0?`<span class="text-slate-400"> · 已隐藏 ${hiddenIds.size} 位</span>`:''}</div>
+      ${state.studentSelectMode?`
+      <div class="flex items-center gap-1.5">
+        <span class="text-xs text-slate-500">已选 <span class="text-rose-600 font-semibold">${selCount}</span></span>
+        <button onclick="toggleSelectAllStudents(${JSON.stringify(visibleIds).replace(/"/g,'&quot;')})" class="text-xs px-2 py-1 rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 transition">${allSelected?'取消全选':'全选'}</button>
+        <button onclick="deleteSelectedStudents()" class="text-xs px-2 py-1 rounded-md bg-rose-500 hover:bg-rose-600 text-white transition flex items-center gap-1 ${selCount===0?'opacity-50 pointer-events-none':''}">
+          <i data-lucide="trash-2" class="w-3 h-3"></i>删除选中
+        </button>
+        <button onclick="exitStudentSelectMode()" class="text-xs px-2 py-1 rounded-md text-slate-500 hover:bg-slate-100 transition">取消</button>
+      </div>`:`
+      <div class="flex items-center gap-2">
+        <button onclick="exportStudentsExcel()" class="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition">
+          <i data-lucide="download" class="w-4 h-4"></i>导出
+        </button>
+        ${state.studentsView==='list'?`<button onclick="enterStudentSelectMode()" class="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-sm font-medium text-rose-600 hover:bg-rose-50 transition">
+          <i data-lucide="check-square" class="w-4 h-4"></i>批量删除
+        </button>`:''}
+        <button onclick="toggleStudentsView()" class="flex items-center gap-1.5 px-3 py-2 rounded-lg border text-sm font-medium transition ${state.studentsView==='trend'?'border-brand-500 bg-brand-50 text-brand-700':'border-slate-200 text-slate-600 hover:bg-slate-50'}">
+          <i data-lucide="${state.studentsView==='trend'?'users':'trending-up'}" class="w-4 h-4"></i>${state.studentsView==='trend'?'学生名单':'趋势'}
+        </button>
+        <button onclick="openStudentModal()" class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition">
+          <i data-lucide="user-plus" class="w-4 h-4"></i>添加学生
+        </button>
+      </div>`}
+    </div>
+
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 mb-4 px-1">
+      <label class="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer select-none">
+        <input type="checkbox" ${hideOn?'checked':''} onchange="toggleHideInactiveStudents()" class="w-3.5 h-3.5 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+        隐藏 ${INACTIVE_DAYS} 天以上没上课的学生${inactiveIds.size?`（${inactiveIds.size}）`:''}
+      </label>
+      ${hideOn&&inactiveIds.size>0?`
+      <label class="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer select-none">
+        <input type="checkbox" ${state.showHiddenStudents?'checked':''} onchange="toggleShowHiddenStudents()" class="w-3.5 h-3.5 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+        显示已隐藏学生（${inactiveIds.size}）
+      </label>`:''}
+    </div>
+
+    ${state.studentsView==='trend' ? renderTrendView(students) : (students.length===0?`
+      <div class="bg-white rounded-2xl border border-slate-200 p-10 text-center text-slate-400 text-sm">
+        <i data-lucide="users" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>${all.length===0?'还没有学生档案':'没有可显示的学生（已隐藏长期不上课的学生）'}
+      </div>`:`
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
+        ${students.map(st=>{
+          const ls=state.lessons.filter(l=>l.studentName===st.name && l.status!=='cancelled');
+          const inc=totalIncome(ls);
+          const hrs=(totalDuration(ls)/60).toFixed(1);
+          const selecting=state.studentSelectMode;
+          const checked=selecting && state.selectedStudentIds.includes(st.id);
+          const inactive=inactiveIds.has(st.id);
+          const lastDate=lastLessonDateOf(st.name);
+          return `
+          <div class="fade-in bg-white rounded-2xl border border-slate-200 shadow-sm p-4 ${checked?'ring-2 ring-rose-300':''} ${inactive?'opacity-70':''}">
+            <div class="flex items-start gap-3">
+              ${selecting?`<button onclick="toggleSelectStudent('${st.id}')" class="shrink-0 mt-2.5 w-5 h-5 rounded-md border flex items-center justify-center transition ${checked?'bg-rose-500 border-rose-500 text-white':'border-slate-300 bg-white text-transparent hover:border-rose-400'}" aria-label="选择学生"><i data-lucide="check" class="w-3 h-3"></i></button>`:''}
+              <div class="w-10 h-10 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-semibold shrink-0">${esc(st.name).slice(0,1)}</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="font-semibold text-slate-900 truncate">${esc(st.name)}</span>
+                  ${prepaidTotalOf(st)>0?`<span class="text-[10px] px-1.5 py-0.5 rounded font-medium shrink-0 ${prepaidRemainingOf(st)<=2?'bg-amber-100 text-amber-700':'bg-brand-100 text-brand-700'}">预付剩 ${prepaidRemainingOf(st)}/${prepaidTotalOf(st)} 节${prepaidRemainingOf(st)<=2?' · 将耗尽':''}</span>`:''}
+                  <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 shrink-0">${esc(st.source)||'—'}</span>
+                  ${inactive?`<span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 shrink-0">长期无课</span>`:''}
+                </div>
+                <div class="text-xs text-slate-500 mt-0.5 truncate">${esc([st.grade,st.subject].filter(Boolean).join(' · '))||'未填写年级科目'}</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">${lastDate?`最近上课 ${esc(lastDate)}`:'从未排课'}</div>
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-2 mt-3 py-2.5 border-y border-slate-100 text-center">
+              <div><div class="text-sm font-semibold text-slate-900">${ls.length}</div><div class="text-[10px] text-slate-400">课节</div></div>
+              <div><div class="text-sm font-semibold text-slate-900">${hrs}</div><div class="text-[10px] text-slate-400">小时</div></div>
+              <div><div class="text-sm font-semibold text-brand-600">¥${inc.toFixed(0)}</div><div class="text-[10px] text-slate-400">课时费</div></div>
+            </div>
+            <div class="mt-2 text-[11px] text-slate-500">
+              默认：${st.billingType==='flat'?'督学':'正课'} · ¥${st.rate||0}/${{hour:'时',minute:'分',time:'次',week:'周',month:'月'}[st.rateUnit||(st.billingType==='flat'?'time':'hour')]||'时'}
+            </div>
+            ${st.phone?`<div class="text-xs text-slate-500 mt-2 flex items-center gap-1"><i data-lucide="phone" class="w-3 h-3"></i>${esc(st.phone)}</div>`:''}
+            ${st.note?`<div class="text-xs text-slate-500 mt-1 line-clamp-2">${esc(st.note)}</div>`:''}
+            <div class="flex items-center gap-1 mt-3">
+              <button onclick="openLessonModal(null,'${jsStr(st.name)}')" class="text-xs px-3 py-1.5 rounded-md bg-brand-50 text-brand-700 hover:bg-brand-100 transition flex items-center gap-1 tap"><i data-lucide="calendar-plus" class="w-3 h-3"></i>排课</button>
+              <button onclick="editStudent('${st.id}')" class="text-xs px-3 py-1.5 rounded-md text-slate-500 hover:bg-slate-100 transition flex items-center gap-1 tap"><i data-lucide="pencil" class="w-3 h-3"></i>编辑</button>
+              <button onclick="deleteStudent('${st.id}')" class="text-xs px-3 py-1.5 rounded-md text-rose-500 hover:bg-rose-50 transition flex items-center gap-1 tap"><i data-lucide="trash-2" class="w-3 h-3"></i>删除</button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`)}
+  </div>`;
+  document.getElementById('pageContent').innerHTML=html;
+  lucide.createIcons();
+}
+
+// ==================== 课程模态框 ====================
+let editingLessonId=null;
+function renderStudentDatalist(){
+  document.getElementById('studentNames').innerHTML = state.students.map(s=>`<option value="${esc(s.name)}">`).join('');
+}
+function autoFillStudentSource(name){
+  const st=state.students.find(x=>x.name===name.trim());
+  if(st){
+    const f=document.getElementById('lessonForm');
+    f.elements.studentSource.value=st.source||'机构';
+    if(!f.elements.subject.value && (st.subject||st.grade)){
+      f.elements.subject.value=[st.grade,st.subject].filter(Boolean).join('');
+    }
+    // 新建课程时：学生档案的计费配置优先于全局默认值
+    if(!editingLessonId){
+      if(st.billingType) f.elements.billingType.value=st.billingType;
+      onBillingTypeChange();  // 先按类型过滤单位选项
+      const unitSel=f.elements.rateUnit;
+      if(st.rateUnit && unitSel.querySelector('option[value="'+st.rateUnit+'"]')){
+        unitSel.value=st.rateUnit;  // 再恢复学生档案配置的单位
+      }
+      if(st.rate) f.elements.rate.value=st.rate;  // 学生档案单价优先
+      updateAmountPreview();
+    }
+  }
+  updatePrepaidHint();
+}
+// 预付销课提示：显示该学生剩余预付课时，并默认勾选销课
+function updatePrepaidHint(){
+  const f=document.getElementById('lessonForm');
+  const hint=document.getElementById('prepaidHint');
+  if(!f || !hint) return;
+  const name=(f.elements.studentName.value||'').trim();
+  const st=state.students.find(x=>x.name===name);
+  if(st && prepaidTotalOf(st)>0){
+    const rem=prepaidRemainingOf(st);
+    hint.textContent=`剩余 ${rem} 节`;
+    hint.className=`text-[11px] ml-auto ${rem>0?'text-brand-600':'text-rose-500'}`;
+    if(!editingLessonId) f.elements.deductPrepaid.checked = rem>0;
+  } else {
+    hint.textContent = name ? '该学生未购买预付课时' : '';
+    hint.className='text-[11px] text-slate-400 ml-auto';
+    if(!editingLessonId) f.elements.deductPrepaid.checked=false;
+  }
+}
+
+function openLessonModal(prefillDate, prefillStudent){
+  const settings=loadSettings();
+  const form=document.getElementById('lessonForm');
+  form.reset();
+  editingLessonId=null;
+  document.getElementById('lessonModalTitle').textContent='添加课程';
+  form.elements.id.value='';
+  form.elements.date.value=prefillDate||todayStr();
+  form.elements.time.value='09:00';
+  form.elements.duration.value=settings.defaultDuration;
+  form.elements.rate.value=settings.defaultRate;
+  form.elements.billingType.value='hourly';
+  form.elements.rateUnit.value='hour';
+  form.elements.studentSource.value='机构';
+  form.elements.incomeSource.value='机构';
+  form.elements.status.value='scheduled';
+  form.elements.deductPrepaid.checked=false;
+  onBillingTypeChange();
+  if(prefillStudent){
+    form.elements.studentName.value=prefillStudent;
+    autoFillStudentSource(prefillStudent);
+  }
+  updatePrepaidHint();
+  updateAmountPreview();
+  renderStudentDatalist();
+  document.getElementById('lessonModal').classList.remove('hidden');
+  document.getElementById('lessonModal').classList.add('flex');
+  lucide.createIcons();
+}
+function closeLessonModal(){
+  document.getElementById('lessonModal').classList.add('hidden');
+  document.getElementById('lessonModal').classList.remove('flex');
+}
+function editLesson(id){
+  const l=state.lessons.find(x=>x.id===id);
+  if(!l) return;
+  editingLessonId=id;
+  document.getElementById('lessonModalTitle').textContent='编辑课程';
+  const f=document.getElementById('lessonForm');
+  f.elements.id.value=l.id;
+  f.elements.date.value=l.date;
+  f.elements.time.value=l.time;
+  f.elements.studentName.value=l.studentName;
+  f.elements.studentSource.value=l.studentSource;
+  f.elements.incomeSource.value=l.incomeSource;
+  f.elements.subject.value=l.subject||'';
+  f.elements.duration.value=l.duration;
+  f.elements.rate.value=l.rate;
+  f.elements.billingType.value=l.billingType||'hourly';
+  f.elements.rateUnit.value=l.rateUnit||((l.billingType||'hourly')==='flat'?'time':'hour');
+  f.elements.status.value=l.status;
+  f.elements.deductPrepaid.checked=!!l.deductPrepaid;
+  onBillingTypeChange();
+  updatePrepaidHint();
+  updateAmountPreview();
+  renderStudentDatalist();
+  document.getElementById('lessonModal').classList.remove('hidden');
+  document.getElementById('lessonModal').classList.add('flex');
+  lucide.createIcons();
+}
+function saveLesson(e){
+  e.preventDefault();
+  const f=e.target;
+  const data={
+    id: f.elements.id.value || genId(),
+    date: f.elements.date.value,
+    time: f.elements.time.value,
+    studentName: f.elements.studentName.value.trim(),
+    studentSource: f.elements.studentSource.value,
+    incomeSource: f.elements.incomeSource.value,
+    subject: f.elements.subject.value.trim(),
+    duration: Number(f.elements.duration.value),
+    rate: Number(f.elements.rate.value),
+    billingType: f.elements.billingType.value,
+    rateUnit: f.elements.rateUnit.value,
+    status: f.elements.status.value,
+    deductPrepaid: !!f.elements.deductPrepaid.checked,
+    completedAt: f.elements.status.value==='completed' ? new Date().toISOString() : null
+  };
+  const idx=state.lessons.findIndex(l=>l.id===data.id);
+  if(idx>=0) state.lessons[idx]=data; else state.lessons.push(data);
+  saveLessons(state.lessons);
+
+  // 新学生自动建档
+  if(!state.students.some(s=>s.name===data.studentName)){
+    state.students.push({ id:genId(), name:data.studentName, source:data.studentSource, incomeSource:data.incomeSource, grade:'', subject:data.subject, phone:'', note:'', rate:data.rate, billingType:data.billingType, rateUnit:data.rateUnit, prepaidTotal:0 });
+    saveStudents(state.students);
+  }
+
+  closeLessonModal();
+  renderPage();
+  toast('保存成功');
+}
+function markCompleted(id){
+  const l=state.lessons.find(x=>x.id===id);
+  if(l){ l.status='completed'; l.completedAt=new Date().toISOString(); saveLessons(state.lessons); renderPage(); toast('已标记完成'); }
+}
+function deleteLesson(id){
+  if(!confirm('确认删除这条课程？')) return;
+  const idx=state.lessons.findIndex(l=>l.id===id);
+  if(idx<0) return;
+  const removed=state.lessons.splice(idx,1)[0];
+  saveLessons(state.lessons);
+  renderPage();
+  toastUndo('已删除 1 条课程', function(){
+    state.lessons.splice(idx,0,removed);
+    saveLessons(state.lessons);
+    renderPage();
+    toast('已恢复');
+  });
+}
+
+// ==================== 学生模态框 ====================
+function openStudentModal(){
+  const f=document.getElementById('studentForm');
+  f.reset();
+  f.elements.id.value='';
+  f.elements.billingType.value='hourly';
+  f.elements.rateUnit.value='hour';
+  document.getElementById('studentModalTitle').textContent='新建学生档案';
+  onStudentBillingChange();
+  document.getElementById('studentModal').classList.remove('hidden');
+  document.getElementById('studentModal').classList.add('flex');
+  lucide.createIcons();
+}
+function closeStudentModal(){
+  document.getElementById('studentModal').classList.add('hidden');
+  document.getElementById('studentModal').classList.remove('flex');
+}
+function editStudent(id){
+  const st=state.students.find(x=>x.id===id);
+  if(!st) return;
+  const f=document.getElementById('studentForm');
+  document.getElementById('studentModalTitle').textContent='编辑学生档案';
+  f.elements.id.value=st.id;
+  f.elements.name.value=st.name;
+  f.elements.source.value=st.source||'机构';
+  f.elements.incomeSource.value=st.incomeSource||st.source||'机构';
+  f.elements.grade.value=st.grade||'';
+  f.elements.subject.value=st.subject||'';
+  f.elements.rate.value=st.rate||'';
+  f.elements.billingType.value=st.billingType||'hourly';
+  f.elements.rateUnit.value=st.rateUnit||((st.billingType||'hourly')==='flat'?'time':'hour');
+  f.elements.prepaidTotal.value=st.prepaidTotal||'';
+  f.elements.phone.value=st.phone||'';
+  f.elements.note.value=st.note||'';
+  onStudentBillingChange();
+  document.getElementById('studentModal').classList.remove('hidden');
+  document.getElementById('studentModal').classList.add('flex');
+  lucide.createIcons();
+}
+function saveStudent(e){
+  e.preventDefault();
+  const f=e.target;
+  const data={
+    id: f.elements.id.value || genId(),
+    name: f.elements.name.value.trim(),
+    source: f.elements.source.value,
+    incomeSource: f.elements.incomeSource.value,
+    grade: f.elements.grade.value.trim(),
+    subject: f.elements.subject.value.trim(),
+    rate: Number(f.elements.rate.value)||'',
+    billingType: f.elements.billingType.value,
+    rateUnit: f.elements.rateUnit.value,
+    prepaidTotal: Number(f.elements.prepaidTotal.value)||0,
+    phone: f.elements.phone.value.trim(),
+    note: f.elements.note.value.trim()
+  };
+  const dup=state.students.find(s=>s.name===data.name && s.id!==data.id);
+  if(dup){ alert('已存在同名学生「'+data.name+'」。课程按姓名关联，重名会导致课时统计与预付销课错乱，请更换姓名后重试。'); return; }
+  const idx=state.students.findIndex(s=>s.id===data.id);
+  if(idx>=0) state.students[idx]=data; else state.students.push(data);
+  saveStudents(state.students);
+  closeStudentModal();
+  renderPage();
+  toast('学生档案已保存');
+}
+function deleteStudent(id){
+  if(!confirm('确认删除该学生档案？已有课程记录不受影响。')) return;
+  const idx=state.students.findIndex(s=>s.id===id);
+  if(idx<0) return;
+  const removed=state.students.splice(idx,1)[0];
+  saveStudents(state.students);
+  renderPage();
+  toastUndo('已删除 1 位学生档案', function(){
+    state.students.splice(idx,0,removed);
+    saveStudents(state.students);
+    renderPage();
+    toast('已恢复');
+  });
+}
+
+// ==================== 导入导出（统一字段字典，导出可直接回灌导入） ====================
+// 对象 → 导出行（按列字典）
+function objToRow(obj, cols){
+  const row={};
+  cols.forEach(c=>{
+    let v = obj[c.key];
+    if(c.type==='map' && c.rev) v = c.rev[v] ?? v;
+    if(c.type==='bool') v = (v?'是':'否');
+    if(c.readonly && c.key==='income') v = incomeOf(obj);
+    row[c.label] = (v===undefined||v===null) ? '' : v;
+  });
+  return row;
+}
+
+// 导入行 → 对象（按列字典）；返回 { ok, data, errors }
+function rowToObj(row, cols){
+  const errors=[];
+  const data={};
+  cols.forEach(c=>{
+    if(c.readonly) return;
+    const raw = row[c.label];
+    let v = (raw===undefined||raw===null) ? '' : String(raw).trim();
+    // 类型转换
+    if(v===''){
+      if(c.required){ errors.push(`「${c.label}」不能为空`); return; }
+      v = c.default!==undefined ? c.default : '';
+    } else {
+      if(c.type==='number'){
+        const n=Number(v.replace(/,/g,''));
+        if(isNaN(n)){ errors.push(`「${c.label}」必须是数字`); return; }
+        v=n;
+      } else if(c.type==='map'){
+        const mapped = c.map[v];
+        if(mapped===undefined){ errors.push(`「${c.label}」值无效：${v}`); return; }
+        v=mapped;
+      } else if(c.type==='bool'){
+        const mapped = c.map[v];
+        if(mapped===undefined){ errors.push(`「${c.label}」值无效：${v}`); return; }
+        v=mapped;
+      } else if(c.type==='date'){
+        if(!/^\d{4}-\d{2}-\d{2}$/.test(v)){ errors.push(`「${c.label}」格式应为 YYYY-MM-DD`); return; }
+      } else if(c.type==='time'){
+        if(!/^\d{1,2}:\d{2}$/.test(v)){ errors.push(`「${c.label}」格式应为 HH:MM`); return; }
+        const [h,m]=v.split(':').map(Number);
+        if(h<0||h>23||m<0||m>59){ errors.push(`「${c.label}」时间无效`); return; }
+        v = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+      }
+    }
+    data[c.key]=v;
+  });
+  return { ok: errors.length===0, data, errors };
+}
+
+// 通用：根据列字典导出 xlsx（含模板下载）
+function exportRows(cols, rows, sheetName, filename){
+  loadXLSX().then(function(){
+    try{
+      const wb=XLSX.utils.book_new();
+      const ws=XLSX.utils.json_to_sheet(rows, { header: cols.map(c=>c.label) });
+      ws['!cols']=cols.map(()=>({wch:14}));
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
+      XLSX.writeFile(wb, filename);
+      setLastBackup();
+    }catch(err){
+      exportCsv(rows, filename.replace(/\.xlsx$/,'.csv'));
+      setLastBackup();
+      toast('Excel 生成失败，已导出 CSV');
+    }
+  }).catch(function(){
+    exportCsv(rows, filename.replace(/\.xlsx$/,'.csv'));
+    setLastBackup();
+    toast('Excel 组件加载失败（可能离线），已导出 CSV');
+  });
+}
+
+function exportCsv(rows, filename){
+  if(!rows.length){ toast('暂无数据'); return; }
+  const headers=Object.keys(rows[0]);
+  const csv=[headers.join(','), ...rows.map(r=>headers.map(h=>`"${String(r[h]).replace(/"/g,'""')}"`).join(','))].join('\n');
+  const blob=new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ---------- CSV 导出（与导入/模板共用同一套列字典，可 round-trip） ----------
+function exportCsvRows(cols, rows, filename){
+  if(!rows.length){ toast('暂无数据'); return; }
+  const headers=cols.map(c=>c.label);
+  const lines=[headers.join(',')].concat(rows.map(r=>headers.map(h=>`"${String(r[h]===undefined||r[h]===null?'':r[h]).replace(/"/g,'""')}"`).join(',')));
+  const blob=new Blob(['\ufeff'+lines.join('\n')], {type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=filename; a.click();
+  URL.revokeObjectURL(url);
+  setLastBackup();
+  toast('CSV 已导出');
+}
+function exportLessonsCsv(){
+  const rows=getLessonsSorted('all').map(l=>objToRow(l, LESSON_COLS));
+  exportCsvRows(LESSON_COLS, rows, `课时记录-${todayStr()}.csv`);
+}
+function exportStudentsCsv(){
+  const rows=state.students.map(s=>objToRow(s, STUDENT_COLS));
+  exportCsvRows(STUDENT_COLS, rows, `学生档案-${todayStr()}.csv`);
+}
+
+// ---------- 表头校验：必需列必须与模板一致 ----------
+function validateImportHeaders(rows, cols){
+  if(!rows.length) return {ok:false, msg:'文件中没有数据行，请检查文件内容'};
+  const keys=Object.keys(rows[0]).map(k=>String(k).trim());
+  const missing=cols.filter(c=>c.required && keys.indexOf(c.label)<0).map(c=>c.label);
+  if(missing.length) return {ok:false, msg:'表头校验失败：缺少必需列「'+missing.join('」「')+'」。\n请下载标准模板，按模板表头填写后再导入。'};
+  const unknown=keys.filter(k=>!cols.some(c=>c.label===k));
+  return {ok:true, unknown:unknown};
+}
+
+// ---------- 简易 CSV 解析（支持引号包裹、"" 转义、BOM、CRLF） ----------
+function parseCSV(text){
+  text=String(text).replace(/^\uFEFF/,'');
+  const rows=[]; let row=[], field='', inQuotes=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(inQuotes){
+      if(c==='"'){ if(text[i+1]==='"'){ field+='"'; i++; } else inQuotes=false; }
+      else field+=c;
+    }else{
+      if(c==='"') inQuotes=true;
+      else if(c===','){ row.push(field); field=''; }
+      else if(c==='\n'){ row.push(field); rows.push(row); row=[]; field=''; }
+      else if(c!=='\r') field+=c;
+    }
+  }
+  if(field!=='' || row.length){ row.push(field); rows.push(row); }
+  if(!rows.length) return [];
+  const headers=rows[0].map(h=>h.trim());
+  return rows.slice(1)
+    .filter(r=>r.some(c=>String(c).trim()!==''))
+    .map(r=>{ const o={}; headers.forEach((h,idx)=>{ o[h]=r[idx]===undefined?'':r[idx]; }); return o; });
+}
+
+// ---------- 导入进度显示 ----------
+function showImportProgress(title, total){
+  const box=document.getElementById('importProgress');
+  const txt=document.getElementById('importProgressText');
+  const bar=document.getElementById('importProgressBar');
+  if(!box) return;
+  if(txt) txt.textContent='正在导入'+title+' 0%';
+  if(bar) bar.style.width='0%';
+  box.classList.remove('hidden'); box.classList.add('flex');
+}
+function updateImportProgress(done, total){
+  const txt=document.getElementById('importProgressText');
+  const bar=document.getElementById('importProgressBar');
+  const pct=total?Math.round(done/total*100):100;
+  if(txt) txt.textContent='正在导入 '+done+'/'+total+' 行（'+pct+'%）';
+  if(bar) bar.style.width=pct+'%';
+}
+function hideImportProgress(){
+  const box=document.getElementById('importProgress');
+  if(box){ box.classList.add('hidden'); box.classList.remove('flex'); }
+}
+
+// ---------- 分批导入引擎：大文件异步处理，每批让出主线程，界面不卡死 ----------
+// kind: 'lesson' | 'student'；返回 Promise<result>
+function importRowsChunked(rows, cols, kind, onProgress){
+  return new Promise(function(resolve){
+    const result={added:0, updated:0, skipped:0, failed:0, errors:[]};
+    if(kind==='lesson'){
+      var byId=new Map(); state.lessons.forEach(l=>byId.set(l.id,l));
+      var seen=new Set(state.lessons.map(l=>l.date+'|'+l.studentName+'|'+l.time));
+      var imported=[];
+    }else{
+      var byId=new Map(); state.students.forEach(s=>byId.set(s.id,s));
+      var byName=new Map(); state.students.forEach(s=>byName.set(s.name,s));
+    }
+    let i=0;
+    function step(){
+      const t0=Date.now();
+      while(i<rows.length && Date.now()-t0<30){   // 每批最多处理 30ms
+        const ri=i; i++;
+        const check=rowToObj(rows[ri], cols);
+        if(!check.ok){
+          result.failed++;
+          check.errors.forEach(m=>result.errors.push('第 '+(ri+2)+' 行：'+m));
+          continue;
+        }
+        const data=check.data;
+        if(kind==='lesson'){
+          data.income=incomeOf(data);
+          if(data.status==='completed' && !data.completedAt) data.completedAt=new Date().toISOString();
+          const id=data.id;
+          if(id && byId.has(id)){
+            Object.assign(byId.get(id), data);     // 按 ID 就地更新
+            result.updated++;
+          }else{
+            const key=data.date+'|'+data.studentName+'|'+data.time;
+            if(seen.has(key)){ result.skipped++; continue; }   // 重复记录跳过
+            seen.add(key);
+            data.id=id||genId();
+            state.lessons.push(data);
+            byId.set(data.id,data);
+            result.added++;
+          }
+          imported.push(data);
+        }else{
+          const id=data.id;
+          if(id && byId.has(id)){
+            Object.assign(byId.get(id), data);
+            byName.set(data.name, byId.get(id));
+            result.updated++;
+          }else if(byName.has(data.name)){
+            const target=byName.get(data.name);
+            data.id=target.id;                     // 保留原 ID
+            Object.assign(target, data);
+            result.updated++;
+          }else{
+            data.id=id||genId();
+            state.students.push(data);
+            byId.set(data.id,data);
+            byName.set(data.name,data);
+            result.added++;
+          }
+        }
+      }
+      if(onProgress) onProgress(i, rows.length);
+      if(i<rows.length){ setTimeout(step, 0); return; }
+      // 收尾：保存 + 课程导入时自动为新学生建档
+      if(kind==='lesson'){
+        saveLessons(state.lessons);
+        const names=new Set(state.students.map(s=>s.name));
+        imported.forEach(l=>{
+          if(!names.has(l.studentName)){
+            state.students.push({ id:genId(), name:l.studentName, source:l.studentSource||'机构', incomeSource:l.incomeSource||'机构', grade:'', subject:l.subject||'', phone:'', note:'', rate:l.rate||0, billingType:l.billingType||'hourly', rateUnit:l.rateUnit||'hour', prepaidTotal:0 });
+            names.add(l.studentName);
+          }
+        });
+        saveStudents(state.students);
+      }else{
+        saveStudents(state.students);
+      }
+      resolve(result);
+    }
+    step();
+  });
+}
+
+// ---------- 统一导入入口：Excel / CSV 自动识别 → 表头校验 → 分批导入 ----------
+function handleImportFile(e, kind){
+  const input=e.target;
+  const file=input.files&&input.files[0];
+  if(!file){ input.value=''; return; }
+  const cols = kind==='lesson' ? LESSON_COLS : STUDENT_COLS;
+  const title = kind==='lesson' ? '课程' : '学生档案';
+  const name=(file.name||'').toLowerCase();
+  const isCsv = name.slice(-4)==='.csv' || (file.type||'').indexOf('csv')>=0;
+
+  const processRows=function(rows){
+    const check=validateImportHeaders(rows, cols);
+    if(!check.ok){ alert(check.msg); return; }
+    showImportProgress(title, rows.length);
+    importRowsChunked(rows, cols, kind, function(done,total){ updateImportProgress(done,total); })
+      .then(function(result){
+        hideImportProgress();
+        if(check.unknown && check.unknown.length){
+          result.errors.push('提示：有 '+check.unknown.length+' 个非模板列已忽略（'+check.unknown.slice(0,5).join('、')+(check.unknown.length>5?' 等':'')+'）');
+        }
+        showImportResult(title, result);
+        renderPage();
+      });
+  };
+
+  if(isCsv){
+    const r=new FileReader();
+    r.onload=function(){
+      try{ processRows(parseCSV(r.result)); }
+      catch(err){ alert('CSV 解析失败：'+(err.message||'文件格式不正确')); }
+    };
+    r.onerror=function(){ alert('文件读取失败'); };
+    r.readAsText(file);
+  }else{
+    const r=new FileReader();
+    r.onload=function(){
+      loadXLSX().then(function(){
+        try{
+          const wb=XLSX.read(new Uint8Array(r.result), {type:'array'});
+          const ws=wb.Sheets[wb.SheetNames[0]];
+          processRows(XLSX.utils.sheet_to_json(ws, {defval:''}));
+        }catch(err){ alert('导入失败：'+(err.message||'文件格式不正确')); }
+      }).catch(function(){
+        alert('导入失败：Excel 组件加载失败（当前可能离线）。CSV 文件可直接导入，或改用 JSON 备份文件导入。');
+      });
+    };
+    r.onerror=function(){ alert('文件读取失败'); };
+    r.readAsArrayBuffer(file);
+  }
+  input.value='';
+}
+
+// 下载空模板（Excel 优先，组件不可用时自动降级 CSV）
+function downloadTemplate(cols, filename){
+  const emptyRow={};
+  cols.forEach(c=>{ if(!c.readonly) emptyRow[c.label]=''; });
+  const fallback=function(){
+    exportCsvRows(cols, [emptyRow], filename.replace(/\.xlsx$/,'.csv'));
+    toast('Excel 组件不可用（可能离线），已下载 CSV 模板');
+  };
+  loadXLSX().then(function(){
+    try{
+      const wb=XLSX.utils.book_new();
+      const ws=XLSX.utils.json_to_sheet([emptyRow], {header: cols.map(c=>c.label)});
+      ws['!cols']=cols.map(()=>({wch:14}));
+      XLSX.utils.book_append_sheet(wb, ws, '模板');
+      XLSX.writeFile(wb, filename);
+      toast('模板已下载');
+    }catch(err){ fallback(); }
+  }).catch(fallback);
+}
+
+// ---------- 课程 ----------
+function exportExcel(){
+  const rows = getLessonsSorted('all').map(l=>objToRow(l, LESSON_COLS));
+  exportRows(LESSON_COLS, rows, '课时明细', `课时记录-${todayStr()}.xlsx`);
+  toast('课程 Excel 已导出（含 ID，可直接回灌导入）');
+}
+function downloadLessonTemplate(){
+  downloadTemplate(LESSON_COLS, `课程导入模板-${todayStr()}.xlsx`);
+  toast('模板已下载');
+}
+function importLessonsExcel(e){ handleImportFile(e,'lesson'); }
+function importLessonRows(rows){ return importRowsChunked(rows, LESSON_COLS, 'lesson'); }
+
+// ---------- 学生 ----------
+function exportStudentsExcel(){
+  const rows = state.students.map(s=>objToRow(s, STUDENT_COLS));
+  exportRows(STUDENT_COLS, rows, '学生档案', `学生档案-${todayStr()}.xlsx`);
+  toast('学生 Excel 已导出（含 ID，可直接回灌导入）');
+}
+function downloadStudentTemplate(){
+  downloadTemplate(STUDENT_COLS, `学生导入模板-${todayStr()}.xlsx`);
+  toast('模板已下载');
+}
+function importStudentsExcel(e){ handleImportFile(e,'student'); }
+function importStudentRows(rows){ return importRowsChunked(rows, STUDENT_COLS, 'student'); }
+
+// ==================== 设置与备份 ====================
+function openSettings(){
+  const s=loadSettings();
+  document.getElementById('defRate').value=s.defaultRate;
+  document.getElementById('defDuration').value=s.defaultDuration;
+  const bs=document.getElementById('backupStatus');
+  if(bs){
+    const l=getLastBackup();
+    bs.textContent = l ? ('上次备份：'+new Date(l).toLocaleString('zh-CN')) : '尚未导出过备份';
+  }
+  refreshPinStatus();
+  if(typeof renderCloudPanel==='function') renderCloudPanel();
+  document.getElementById('settingsModal').classList.remove('hidden');
+  document.getElementById('settingsModal').classList.add('flex');
+  createIcons();
+}
+function closeSettings(){
+  document.getElementById('settingsModal').classList.add('hidden');
+  document.getElementById('settingsModal').classList.remove('flex');
+}
+function saveSettings(){
+  saveSettingsObj({
+    defaultRate: Number(document.getElementById('defRate').value)||200,
+    defaultDuration: Number(document.getElementById('defDuration').value)||60
+  });
+  toast('默认值已保存');
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify({
+    lessons:state.lessons, students:state.students, settings:loadSettings(), exportedAt:new Date().toISOString()
+  }, null, 2)], {type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`lesson-backup-${todayStr()}.json`; a.click();
+  URL.revokeObjectURL(url);
+  setLastBackup();
+  toast('已导出 JSON 备份');
+}
+function importData(e){
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const data=JSON.parse(r.result);
+      if(!data.lessons || !Array.isArray(data.lessons)) throw new Error('bad');
+      state.lessons=data.lessons; saveLessons(state.lessons);
+      if(Array.isArray(data.students)){ state.students=data.students; saveStudents(state.students); }
+      else { state.students=deriveStudents(state.lessons); saveStudents(state.students); }
+      if(data.settings) saveSettingsObj(data.settings);
+      closeSettings(); renderNav(); renderPage(); toast('导入成功');
+    }catch(err){ alert('文件格式不正确'); }
+  };
+  r.readAsText(file);
+  e.target.value='';
+}
+function clearAllData(){
+  if(!confirm('将清空全部课程记录、学生档案和设置！')) return;
+  const snapLessons=state.lessons.slice();
+  const snapStudents=state.students.slice();
+  const snapSettings=loadSettings();
+  localStorage.removeItem(STORE_KEY);
+  localStorage.removeItem(STUDENTS_KEY);
+  localStorage.removeItem(SETTINGS_KEY);
+  state.lessons=[]; state.students=[];
+  if(cloudLoggedIn()){ cloudSyncPush('lessons', []); cloudSyncPush('students', []); }
+  closeSettings();
+  renderPage();
+  toastUndo('数据已清空', function(){
+    state.lessons=snapLessons;
+    state.students=snapStudents;
+    saveLessons(state.lessons);
+    saveStudents(state.students);
+    saveSettingsObj(snapSettings);
+    renderPage();
+    toast('已恢复全部数据');
+  });
+}
+
+// ==================== 云端同步（CloudBase） ====================
+const CLOUD_ENV_KEY='cloudEnvId_v1';
+function getCloudEnvId(){ try{ return (localStorage.getItem(CLOUD_ENV_KEY)||'').trim(); }catch(e){ return ''; } }
+var cloudApp=null, cloudDb=null, cloudUser=null;
+
+function getCloudSDK(){
+  var sdk = window.cloudbase || window.cloud;
+  return (sdk && sdk.init) ? sdk : null;
+}
+function initCloud(){
+  if(cloudApp) return cloudApp;
+  var envId=getCloudEnvId();
+  if(!envId) return null;
+  var sdk=getCloudSDK();
+  if(!sdk){ toast('云端组件未加载，请检查网络后刷新重试'); return null; }
+  try{
+    cloudApp=sdk.init({ env: envId });
+    cloudDb=cloudApp.database();
+    return cloudApp;
+  }catch(e){
+    console.warn('CloudBase 初始化失败:', e);
+    toast('云端连接失败：环境 ID 可能不正确（或未配置安全域名）');
+    cloudApp=null; cloudDb=null;
+    return null;
+  }
+}
+function dbCmd(){ return cloudDb ? cloudDb.command() : null; }
+function cloudConfigured(){ return !!getCloudEnvId(); }
+function cloudLoggedIn(){ return !!cloudUser; }
+
+// 会话恢复（刷新页面后保持登录）
+function restoreCloudSession(){
+  var app=initCloud(); if(!app){ renderCloudPanel(); renderCloudBanner(); return; }
+  try{
+    if(app.auth().getLoginState()){
+      cloudUser = app.auth().currentUser || {};
+      pullCloudData();
+    } else { cloudUser=null; }
+  }catch(e){ cloudUser=null; }
+  renderCloudPanel(); renderCloudBanner();
+}
+
+// 登录 / 注册（SDK 能力探测，兼容不同版本）
+function cloudAuthCall(method, args){
+  var auth=cloudApp.auth();
+  var fn = auth[method] || (auth.fetchProvider && auth.fetchProvider()[method]);
+  if(!fn) throw new Error('当前云端组件不支持该登录方式，请在 CloudBase 控制台开启「用户名密码登录」');
+  return fn.apply(auth, args);
+}
+function friendlyAuthError(e){
+  var m=(e&&e.message)||String(e);
+  if(m.indexOf('user not exist')>=0||m.indexOf('USER_NOT_EXIST')>=0) return '账号不存在，请先注册';
+  if(m.indexOf('PASSWORD')>=0||m.indexOf('password')>=0) return '密码错误，请重试';
+  if(m.indexOf('exist')>=0) return '该用户名已被注册，请直接登录';
+  if(m.indexOf('env')>=0||m.indexOf('invalid')>=0) return '环境 ID 不正确，请在设置中检查';
+  return '操作失败：'+m;
+}
+var authMode='signin';
+function openAuthModal(){
+  authMode='signin';
+  document.getElementById('authPass2').classList.add('hidden');
+  document.getElementById('authTitle').textContent='登录云端';
+  document.getElementById('authSubmit').textContent='登录';
+  document.getElementById('authToggle').textContent='没有账号？注册一个';
+  document.getElementById('authErr').classList.add('hidden');
+  var m=document.getElementById('authModal');
+  m.classList.remove('hidden'); m.classList.add('flex');
+  setTimeout(function(){ var u=document.getElementById('authUser'); if(u) u.focus(); }, 80);
+  createIcons(m);
+}
+function toggleAuthMode(){
+  authMode = authMode==='signin' ? 'signup' : 'signin';
+  var isSignup = authMode==='signup';
+  document.getElementById('authPass2').classList.toggle('hidden', !isSignup);
+  document.getElementById('authTitle').textContent = isSignup ? '注册云端账号' : '登录云端';
+  document.getElementById('authSubmit').textContent = isSignup ? '注册并登录' : '登录';
+  document.getElementById('authToggle').textContent = isSignup ? '已有账号？直接登录' : '没有账号？注册一个';
+  document.getElementById('authErr').classList.add('hidden');
+}
+function closeAuthModal(){
+  var m=document.getElementById('authModal');
+  m.classList.add('hidden'); m.classList.remove('flex');
+  document.getElementById('authPass').value='';
+  document.getElementById('authPass2').value='';
+}
+function submitCloudAuth(){
+  var u=(document.getElementById('authUser').value||'').trim();
+  var p=document.getElementById('authPass').value||'';
+  var p2=document.getElementById('authPass2').value||'';
+  var err=document.getElementById('authErr');
+  function showErr(m){ err.textContent=m; err.classList.remove('hidden'); }
+  err.classList.add('hidden');
+  if(u.length<2) return showErr('用户名至少 2 个字符');
+  if(p.length<6) return showErr('密码至少 6 位');
+  if(authMode==='signup' && p!==p2) return showErr('两次输入的密码不一致');
+  if(!initCloud()) return;
+  var btn=document.getElementById('authSubmit');
+  btn.disabled=true; btn.textContent='处理中…';
+  var job = authMode==='signup'
+    ? cloudAuthCall('signUpWithUsernameAndPassword',[u,p]).then(function(){ return cloudAuthCall('signInWithUsernameAndPassword',[u,p]); })
+    : cloudAuthCall('signInWithUsernameAndPassword',[u,p]);
+  job.then(function(){
+    cloudUser = { username:u };
+    closeAuthModal();
+    toast(authMode==='signup' ? '注册并登录成功' : '登录成功');
+    pullCloudData();
+    renderCloudPanel(); renderCloudBanner();
+  }).catch(function(e){
+    showErr(friendlyAuthError(e));
+  }).then(function(){
+    btn.disabled=false; btn.textContent = authMode==='signup' ? '注册并登录' : '登录';
+  });
+}
+
+// 云端拉取
+function stripCloud(list){ return (list||[]).map(function(d){ var c=Object.assign({},d); delete c._id; delete c._openid; return c; }); }
+function localHasData(){
+  try{
+    var l=JSON.parse(localStorage.getItem(STORE_KEY)||'[]');
+    var s=JSON.parse(localStorage.getItem(STUDENTS_KEY)||'[]');
+    return (l&&l.length>0)||(s&&s.length>0);
+  }catch(e){ return false; }
+}
+function pullCloudData(){
+  if(!initCloud()||!cloudLoggedIn()) return Promise.resolve();
+  return Promise.all([
+    cloudDb.collection('lessons').get().catch(function(){ return {data:[]}; }),
+    cloudDb.collection('students').get().catch(function(){ return {data:[]}; }),
+    cloudDb.collection('settings').doc('global').get().catch(function(){ return {data:null}; })
+  ]).then(function(rs){
+    var L=stripCloud(rs[0].data), S=stripCloud(rs[1].data);
+    var G=(rs[2]&&rs[2].data)||null;
+    if(L.length){ state.lessons=normalizeLessons(L); saveLessonsLocal(state.lessons); }
+    if(S.length){ state.students=normalizeStudents(S); saveStudentsLocal(state.students); }
+    if(G) saveSettingsObjLocal(G);
+    if(!L.length && !S.length && localHasData()){
+      toast('检测到本机有数据：设置 → 云端同步 → 上传本地数据');
+    }
+    renderPage();
+    renderCloudPanel();
+  }).catch(function(e){
+    console.warn('pullCloudData', e);
+    toast('云端读取失败，已使用本机数据');
+  });
+}
+
+// 云端推送（diff：删多的、改变的、增新的）
+function cloudSyncPush(coll, list){
+  if(!initCloud()||!cloudLoggedIn()) return;
+  cloudDb.collection(coll).get().then(function(res){
+    var cloudMap=new Map(); res.data.forEach(function(d){ cloudMap.set(d.id,d); });
+    var localIds=new Set(list.map(function(x){ return x.id; }));
+    var jobs=[];
+    var toDel=res.data.filter(function(d){ return !localIds.has(d.id); }).map(function(d){ return d._id; });
+    if(toDel.length){ var _=dbCmd(); jobs.push(cloudDb.collection(coll).where({_id:_.in(toDel)}).remove()); }
+    list.forEach(function(item){
+      var c=cloudMap.get(item.id);
+      if(c) jobs.push(cloudDb.collection(coll).doc(c._id).update({ data:item }));
+      else jobs.push(cloudDb.collection(coll).add({ data:item }));
+    });
+    return Promise.all(jobs);
+  }).catch(function(e){
+    console.warn('cloudSyncPush', coll, e);
+    toast('云端同步失败，数据已保存到本机');
+  });
+}
+function cloudPushSettings(s){
+  if(!initCloud()||!cloudLoggedIn()) return;
+  cloudDb.collection('settings').doc('global').set({ data:s }).catch(function(e){ console.warn('push settings', e); });
+}
+function manualPushCloud(){
+  if(!initCloud()) return;
+  if(!cloudLoggedIn()){ openAuthModal(); return; }
+  if(!confirm('将把本机数据上传到云端（云端已有数据会被替换为当前版本），继续？')) return;
+  cloudSyncPush('lessons', state.lessons);
+  cloudSyncPush('students', state.students);
+  cloudPushSettings(loadSettings());
+  toast('已开始上传，完成后数据即在云端');
+}
+function manualPullCloud(){
+  if(!initCloud()) return;
+  if(!cloudLoggedIn()){ openAuthModal(); return; }
+  if(!confirm('将从云端拉取最新数据并覆盖本机数据，继续？')) return;
+  pullCloudData().then(function(){ toast('已拉取云端数据'); });
+}
+function cloudLogout(){
+  if(!initCloud()) return;
+  cloudApp.auth().signOut().then(function(){
+    cloudUser=null;
+    renderCloudPanel(); renderCloudBanner();
+    toast('已退出登录');
+  }).catch(function(e){ toast('退出失败：'+(e.message||'')); });
+}
+
+// 环境配置与状态面板
+function saveCloudEnv(){
+  var v=(document.getElementById('cloudEnvInput').value||'').trim();
+  if(!v){ toast('请输入环境 ID'); return; }
+  try{ localStorage.setItem(CLOUD_ENV_KEY, v); }catch(e){}
+  cloudApp=null; cloudDb=null; cloudUser=null;
+  if(initCloud()){
+    cloudDb.collection('settings').limit(1).get().then(function(){
+      toast('环境 ID 已保存，连接成功');
+      restoreCloudSession();
+    }).catch(function(e){
+      console.warn('env probe', e);
+      toast('连接失败：请检查环境 ID 与数据库集合是否已创建');
+      renderCloudPanel(); renderCloudBanner();
+    });
+  } else {
+    renderCloudPanel(); renderCloudBanner();
+  }
+}
+function renderCloudPanel(){
+  var el=document.getElementById('cloudState');
+  if(!el) return;
+  var configured=cloudConfigured();
+  el.innerHTML = configured
+    ? (cloudLoggedIn() ? '状态：<b class="text-brand-600">已登录</b>（'+esc(cloudUser.username||'')+'）· 数据实时保存到云端' : '状态：未登录 · 环境已配置，登录后开始同步')
+    : '状态：未配置 · 数据仅保存在本机浏览器';
+  var envInput=document.getElementById('cloudEnvInput');
+  if(envInput && document.activeElement!==envInput) envInput.value=getCloudEnvId();
+  var logged=cloudLoggedIn();
+  document.getElementById('cloudLoginBtn').classList.toggle('hidden', logged);
+  document.getElementById('cloudLogoutBtn').classList.toggle('hidden', !logged);
+  document.getElementById('cloudPushBtn').classList.toggle('hidden', !logged);
+  document.getElementById('cloudPullBtn').classList.toggle('hidden', !logged);
+}
+function renderCloudBanner(){
+  var b=document.getElementById('cloudBanner');
+  var app=document.getElementById('app');
+  if(!b||!app) return;
+  var show=!cloudConfigured();
+  b.classList.toggle('hidden', !show);
+  app.style.height = show ? 'calc(100dvh - 37px)' : '';
+}
+function bootCloud(){
+  renderCloudBanner();
+  restoreCloudSession();
+}
+
+// ==================== 通用 ====================
+function closeModalBack(e,id){
+  if(e.target.id===id){
+    document.getElementById(id).classList.add('hidden');
+    document.getElementById(id).classList.remove('flex');
+  }
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.remove('hidden');
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer=setTimeout(()=>t.classList.add('hidden'), 1800);
+}
+
+function renderPage(){
+  if(state.currentTab==='dashboard') renderDashboard();
+  else if(state.currentTab==='list') renderList();
+  else renderStudents();
+  updatePageSub();
+}
+
+renderNav();
+renderPage();
+checkPinLock();
+if(typeof bootCloud==='function') bootCloud();
+
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'){ closeLessonDetail(); closeLessonModal(); closeStudentModal(); closeSettings(); closeDayPopup(); }
+});
+</script>
+
+
+</body></html>
