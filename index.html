@@ -2903,15 +2903,14 @@ function initCloud(){
   if(cloudApp) return cloudApp;
   var envId=getCloudEnvId();
   if(!envId) return null;
-  var sdk=getCloudSDK();
-  if(!sdk){ toast('云端组件未加载，请检查网络后刷新重试'); return null; }
   try{
+    var sdk=getCloudSDK();
+    if(!sdk){ console.warn('CloudBase SDK 未加载'); return null; }
     cloudApp=sdk.init({ env: envId });
     cloudDb=cloudApp.database();
     return cloudApp;
   }catch(e){
     console.warn('CloudBase 初始化失败:', e);
-    toast('云端连接失败：环境 ID 可能不正确（或未配置安全域名）');
     cloudApp=null; cloudDb=null;
     return null;
   }
@@ -3127,8 +3126,8 @@ function renderCloudBanner(){
   app.style.height = show ? 'calc(100dvh - 37px)' : '';
 }
 function bootCloud(){
-  renderCloudBanner();
-  restoreCloudSession();
+  try{ renderCloudBanner(); }catch(e){ console.warn('renderCloudBanner error:', e); }
+  try{ restoreCloudSession(); }catch(e){ console.warn('restoreCloudSession error:', e); renderCloudPanel(); renderCloudBanner(); }
 }
 
 // ==================== 通用 ====================
@@ -3152,10 +3151,10 @@ function renderPage(){
   updatePageSub();
 }
 
-renderNav();
-renderPage();
-checkPinLock();
-if(typeof bootCloud==='function') bootCloud();
+try{ renderNav(); }catch(e){ console.error('renderNav error:', e); }
+try{ renderPage(); }catch(e){ console.error('renderPage error:', e); document.getElementById('pageContent').innerHTML='<div class="p-8 text-center text-slate-500 text-sm">页面加载出错，请刷新重试</div>'; }
+try{ checkPinLock(); }catch(e){ console.error('checkPinLock error:', e); }
+try{ if(typeof bootCloud==='function') bootCloud(); }catch(e){ console.error('bootCloud error:', e); }
 
 document.addEventListener('keydown', e=>{
   if(e.key==='Escape'){ closeLessonDetail(); closeLessonModal(); closeStudentModal(); closeSettings(); closeDayPopup(); }
